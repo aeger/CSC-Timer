@@ -17,7 +17,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 10px;
-    background: linear-gradient(135deg, #007bff, #28a745); /* Gradient header */
+    background: linear-gradient(135deg, #007bff, #28a745);
     border-radius: 8px;
     margin-bottom: 20px;
 }
@@ -32,7 +32,7 @@ h1, h3, h4 {
     color: #f0f0f0;
 }
 .title-container h1 {
-    color: #f37021 !important; /* BD.com orange with !important */
+    color: #f37021 !important;
     font-weight: 700;
     font-style: italic;
 }
@@ -50,6 +50,27 @@ h1, h3, h4 {
     padding: 20px 0;
     max-width: 90%;
     margin-left: 5%;
+    position: relative;
+}
+.time-container::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    transform: translate(-50%, -50%);
+    background: conic-gradient(#28a745 0% var(--progress, 0%), transparent var(--progress, 0%) 100%);
+    border-radius: 50%;
+    z-index: -1;
+}
+.clock {
+    z-index: 1;
+    opacity: 1;
+    color: #000;
+}
+.light .clock.green {
+    color: #fff; /* Ensure visibility in green */
 }
 button {
     padding: 10px 20px;
@@ -60,7 +81,7 @@ button {
     transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     font-weight: 500;
-    color: #000; /* High contrast default text */
+    color: #000;
 }
 .light button {
     background: #f0f0f0;
@@ -79,10 +100,10 @@ button:active {
     transform: scale(0.98);
 }
 #managerEscalation {
-    background: #007bff; /* Blue when disabled */
+    background: #007bff;
 }
 #managerEscalation.red-bg {
-    background: #dc3545; /* Red when enabled */
+    background: #dc3545;
 }
 .status-buttons {
     display: flex;
@@ -92,25 +113,36 @@ button:active {
 }
 .status-buttons button {
     min-width: 120px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 .status-buttons .green-bg {
-    background: #28a745;
+    background: linear-gradient(to right, #28a745, #198754);
     color: white;
 }
 .status-buttons .orange-bg {
-    background: #fd7e14;
+    background: linear-gradient(to right, #fd7e14, #e67e22);
     color: white;
 }
 .status-buttons .yellow-bg {
-    background: #ffc107;
+    background: linear-gradient(to right, #ffc107, #ffca28);
     color: black;
 }
 .status-buttons .blue-bg {
-    background: #007bff;
+    background: linear-gradient(to right, #007bff, #0056b3);
     color: white;
 }
 .status-buttons .red-bg {
-    background: #dc3545;
+    background: linear-gradient(to right, #dc3545, #c82333);
+    color: white;
+}
+.status-buttons .purple-bg {
+    background: linear-gradient(to right, #6f42c1, #d3a6f9);
+    color: white;
+}
+.status-buttons .teal-bg {
+    background: linear-gradient(to right, #20c997, #75e4c9);
     color: white;
 }
 .green {
@@ -138,26 +170,34 @@ button:active {
     fill: currentColor;
 }
 .light .theme-icon {
-    fill: #333;
+    fill: #ffff00;
 }
 .dark .theme-icon {
-    fill: #f0f0f0;
+    fill: #ffff00;
 }
 .schedule-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 15px;
     margin: 20px 0;
+    animation: fadeIn 0.5s ease-in;
+}
+.schedule-cards.fadeIn {
+    animation: fadeIn 0.5s ease-in;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 .schedule-card {
     background: #f8f9fa;
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 .schedule-card:hover {
-    transform: scale(1.02);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
 }
 .dark .schedule-card {
     background: #444;
@@ -175,12 +215,12 @@ button:active {
     color: #333;
     border-color: #ccc;
 }
-.light .upcoming-card { background: #e0f7e9; }
-.light .nearing-card { background: #fff9e6; }
-.light .overdue-card { background: #fce4e4; }
-.dark .upcoming-card { background: #2c4c2c; }
-.dark .nearing-card { background: #4d3f1a; }
-.dark .overdue-card { background: #4d1a1a; }
+.light .upcoming-card { background: linear-gradient(to right, #e0f7e9, #c3e6cb); }
+.light .nearing-card { background: linear-gradient(to right, #fff9e6, #ffeeba); }
+.light .overdue-card { background: linear-gradient(to right, #fce4e4, #f5c6cb); }
+.dark .upcoming-card { background: linear-gradient(to right, #2c4c2c, #1a3e1a); }
+.dark .nearing-card { background: linear-gradient(to right, #4d3f1a, #3c2f14); }
+.dark .overdue-card { background: linear-gradient(to right, #4d1a1a, #3c1414); }
 .schedule-input {
     display: flex;
     gap: 15px;
@@ -208,12 +248,31 @@ input[type="number"], input[type="time"], select {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 .dark .settings-panel {
     background: #444;
 }
 .show {
-    display: block;
+    display: flex;
+}
+.accordion {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+}
+.accordion summary {
+    cursor: pointer;
+    font-weight: bold;
+    padding: 5px;
+}
+.accordion[open] summary {
+    background: #f0f0f0;
+}
+.dark .accordion[open] summary {
+    background: #5a6268;
 }
 svg.speaker {
     width: 20px;
@@ -252,7 +311,11 @@ svg.speaker {
 }
 .clock {
     font-size: 4em;
-    transition: color 0.3s; /* Smooth color change */
+    transition: color 0.3s;
+    position: relative;
+    display: inline-block;
+    z-index: 1;
+    opacity: 1;
 }
 .highlight:not(.clock) {
     font-size: 2em;
@@ -266,13 +329,26 @@ svg.speaker {
     color: #6c757d;
 }
 .countdown-text {
+    transition: color 0.3s;
+}
+.countdown-label {
     color: #007bff;
 }
-.countdown-text.yellow {
-    color: #ffc107;
+.countdown-container, .status-container {
+    text-align: center;
 }
-.countdown-text.red {
-    color: #dc3545;
+.icon {
+    font-size: 1.2em;
+    margin-right: 8px;
+}
+.status-icon {
+    font-size: 1.2em;
+    margin-right: 8px;
+    transition: opacity 0.3s;
+}
+.status-icon svg {
+    width: 1.2em;
+    height: 1.2em;
 }
 .theme-header {
     color: #fff;
@@ -309,8 +385,166 @@ svg.speaker {
     border-bottom: 2px solid #495057;
     background-color: rgba(73, 80, 87, 0.1);
 }
-.dark .theme-header, .dark .time-format-header, .dark .alert-times-header, .dark .sounds-header, .dark .click-sounds-header, .dark .sidebar-mode-header, .dark .data-management-header {
+.time-zone-header {
     color: #fff;
+    border-bottom: 2px solid #6c757d;
+    background-color: rgba(108, 117, 125, 0.1);
+}
+.dark .theme-header, .dark .time-format-header, .dark .alert-times-header, .dark .sounds-header, .dark .click-sounds-header, .dark .sidebar-mode-header, .dark .data-management-header, .dark .time-zone-header {
+    color: #fff;
+}
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+.tooltip .tooltip-text {
+    visibility: hidden;
+    width: 120px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    transition-delay: 0.2s;
+}
+.tooltip .tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+.tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+.profile-switcher {
+    padding: 5px;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 800px;
+    position: relative;
+}
+.dark .modal-content {
+    background: #444;
+    color: #ddd;
+}
+#closeModal {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+}
+#weekTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+#weekTable td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    min-height: 100px;
+    vertical-align: top;
+    background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+}
+.dark #weekTable td {
+    border-color: #6c757d;
+    background: linear-gradient(135deg, #495057, #343a40);
+}
+#weekTable td.selected {
+    border: 2px solid #007bff;
+    background: #d1ecf1;
+}
+.dark #weekTable td.selected {
+    border: 2px solid #28a745;
+    background: #2c4c2c;
+}
+#weekTable .event-item {
+    background: #f0f0f0;
+    padding: 5px;
+    margin: 2px 0;
+    cursor: move;
+    color: #333;
+}
+.dark #weekTable .event-item {
+    background: #6c757d;
+    color: #ddd;
+}
+#weekTable td:hover {
+    background: #e0e0e0;
+}
+.timeline {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    margin: 20px 0;
+    padding: 10px 0;
+    background: #f8f9fa;
+    border-radius: 8px;
+    position: relative;
+    height: 60px;
+}
+.dark .timeline {
+    background: #444;
+}
+.timeline-bar {
+    flex: 0 0 auto;
+    height: 40px;
+    border-radius: 10px;
+    position: relative;
+}
+.timeline-bar::after {
+    content: attr(data-label);
+    position: absolute;
+    top: 45px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8em;
+    color: #333;
+    white-space: nowrap;
+}
+.dark .timeline-bar::after {
+    color: #ddd;
+}
+.timeline-bar::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #007bff;
+}
+.timeline-bar:hover::after {
+    content: attr(data-label) '\A(Green: Upcoming, Yellow: Nearing, Red: Overdue)';
+    white-space: pre-wrap;
 }
 @media (max-width: 600px) {
     .highlight {
@@ -330,12 +564,56 @@ svg.speaker {
         align-items: flex-start;
     }
 }
-.icon {
-    width: 24px;
-    height: 24px;
-    vertical-align: middle;
-    margin-right: 8px;
-}
 #expectedStatus {
-    transition: color 0.3s; /* Smooth color change for expected status */
+    transition: color 0.3s;
+}
+#newScheduleInput {
+    display: none;
+    gap: 10px;
+}
+#newScheduleInput input {
+    padding: 5px;
+}
+.planner-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.planner-tabs .tab {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.planner-tabs .tab.active {
+    background: #007bff;
+    color: #fff;
+}
+.planner-content {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+#customSchedulesList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+#customSchedulesList div {
+    padding: 5px;
+    cursor: pointer;
+}
+#customSchedulesList div.selected {
+    background: #d1ecf1;
+}
+.dark #customSchedulesList div.selected {
+    background: #2c4c2c;
+}
+.planner-instructions {
+    font-size: 0.8em;
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+.custom-schedule-content {
+    margin-top: 5px;
 }
