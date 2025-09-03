@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSC Adherence Timer</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+<body class="dark"> <!-- Default to dark; script will load from settings -->
+    <nav class="top-navbar">
+        <div class="title-container">
+            <img src="logo.png" alt="Logo" class="logo">
+            <h1>CSC Adherence Timer</h1>
+        </div>
+        <button id="toggleSettings">Show/Hide Settings</button>
+    </nav>
+
+    <div class="time-container">
+        <span class="highlight clock" id="currentTime">Loading time...</span>
+    </div>
+
+    <div class="highlight">
+        <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83M2 12h4M18 12h4"></path>
+        </svg>
+        Countdown to next event: <span id="countdown" class="countdown-text">--</span>
+    </div>
+
+    <div class="highlight">
+        Current Expected Status: <span id="expectedStatus">None</span>
+    </div>
+
+    <button id="managerEscalation">Activate Manager Escalation</button>
+    <h3>Current Status</h3>
+    <p>Click the button matching your current work status to acknowledge and reset the clock color.</p>
+
+    <div class="status-buttons">
+        <button class="status" data-type="On Queue">On Queue</button>
+        <button class="status" data-type="Off Queue">Off Queue</button>
+        <button class="status" data-type="Break">Break</button>
+        <button class="status" data-type="Meal">Meal</button>
+        <button class="status" data-type="Meeting">Meeting</button>
+        <button class="status" data-type="Busy">Busy</button>
+        <button class="status" data-type="Shift End">Shift End</button>
+    </div>
+
+    <h3>Schedule</h3>
+    <div class="schedule-input">
+        <input type="time" id="eventTime">
+        <select id="eventType">
+            <option value="Start Shift">Start Shift</option>
+            <option value="On Queue">On Queue</option>
+            <option value="Off Queue">Off Queue</option>
+            <option value="Break">Break</option>
+            <option value="Meal">Meal</option>
+            <option value="Meeting">Meeting</option>
+            <option value="Busy">Busy</option>
+            <option value="Shift End">Shift End</option>
+            <option value="C2C">C2C</option>
+        </select>
+        <button id="addEvent">Add Event</button>
+        <button id="saveChanges" style="display: none;">Save Changes</button>
+    </div>
+
+    <div id="scheduleCards" class="schedule-cards"></div>
+
+    <div id="settingsPanel" class="settings-panel">
+        <h3 class="theme-header">Theme</h3>
+        <button id="lightTheme">
+            <svg class="theme-icon"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83M2 12h4M18 12h4"></path></svg>
+            Light
+        </button>
+        <button id="darkTheme">
+            <svg class="theme-icon"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83M2 12h4M18 12h4"></path></svg>
+            Dark
+        </button>
+
+        <h3 class="time-format-header">Time Format</h3>
+        <select id="timeFormat">
+            <option value="12">12-hour (AM/PM)</option>
+            <option value="24">24-hour</option>
+        </select>
+
+        <h3 class="alert-times-header">Alert Times</h3>
+        <table class="alert-settings">
+            <tr><th>Alert Type</th><th>Slider</th><th>Value</th></tr>
+            <tr><td>Alert Lead Time (mins before)</td><td><input type="range" id="leadTimeSlider" min="0" max="30" step="1"></td><td><input type="number" id="leadTime" min="0" max="30"></td></tr>
+            <tr><td>First Warn (mins after)</td><td><input type="range" id="firstWarnSlider" min="0" max="30" step="1"></td><td><input type="number" id="firstWarn" min="0" max="30"></td></tr>
+            <tr><td>Second Warn (mins after)</td><td><input type="range" id="secondWarnSlider" min="0" max="30" step="1"></td><td><input type="number" id="secondWarn" min="0" max="30"></td></tr>
+        </table>
+
+        <h3 class="sounds-header">Sounds</h3>
+        <label><input type="checkbox" id="enableSounds"> Enable Sounds <svg class="speaker" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4l-5 5H3z"></path></svg></label>
+        <table class="sound-settings">
+            <tr><th>Alert Type</th><th>Enable</th><th>Sound Pattern</th><th>Volume</th><th>Preview</th></tr>
+            <tr data-alert="leadTime"><td>Lead Time</td><td><input type="checkbox" class="sound-enable" data-alert="leadTime"></td><td><select class="sound-pattern" data-alert="leadTime"><option value="double">Double Beep</option><option value="single">Single Beep</option><option value="triple">Triple Beep</option><option value="chime">Chime</option></select></td><td><input type="range" class="sound-volume" data-alert="leadTime" min="0" max="1" step="0.1"></td><td><button class="preview-sound" data-alert="leadTime">Play</button></td></tr>
+            <tr data-alert="atEvent"><td>At Event</td><td><input type="checkbox" class="sound-enable" data-alert="atEvent"></td><td><select class="sound-pattern" data-alert="atEvent"><option value="single">Single Beep</option><option value="double">Double Beep</option><option value="triple">Triple Beep</option><option value="chime">Chime</option></select></td><td><input type="range" class="sound-volume" data-alert="atEvent" min="0" max="1" step="0.1"></td><td><button class="preview-sound" data-alert="atEvent">Play</button></td></tr>
+            <tr data-alert="firstWarn"><td>First Warn</td><td><input type="checkbox" class="sound-enable" data-alert="firstWarn"></td><td><select class="sound-pattern" data-alert="firstWarn"><option value="triple">Triple Beep</option><option value="single">Single Beep</option><option value="double">Double Beep</option><option value="chime">Chime</option></select></td><td><input type="range" class="sound-volume" data-alert="firstWarn" min="0" max="1" step="0.1"></td><td><button class="preview-sound" data-alert="firstWarn">Play</button></td></tr>
+            <tr data-alert="secondWarn"><td>Second Warn</td><td><input type="checkbox" class="sound-enable" data-alert="secondWarn"></td><td><select class="sound-pattern" data-alert="secondWarn"><option value="chime">Chime</option><option value="single">Single Beep</option><option value="double">Double Beep</option><option value="triple">Triple Beep</option></select></td><td><input type="range" class="sound-volume" data-alert="secondWarn" min="0" max="1" step="0.1"></td><td><button class="preview-sound" data-alert="secondWarn">Play</button></td></tr>
+        </table>
+
+        <h3 class="click-sounds-header">Click Sounds</h3>
+        <label><input type="checkbox" id="enableClicks"> Enable Click Sounds</label>
+        <label>Click Volume: <input type="range" id="clickVolume" min="0" max="1" step="0.1"></label>
+        <button id="clickPreview">Preview Click</button>
+
+        <h3 class="sidebar-mode-header">Sidebar Mode</h3>
+        <label><input type="checkbox" id="sidebarMode"> Enable Sidebar Mode</label>
+        <button id="pinSidebar">Pin to Sidebar</button>
+        <button id="installApp">Install as App</button>
+
+        <h3 class="data-management-header">Data Management</h3>
+        <div class="import-container">
+            <label>Import Schedule: <input type="file" id="importFile" accept=".json"></label>
+            <button id="importSchedule">Import</button>
+        </div>
+        <button id="exportSchedule">Export Schedule</button>
+        <button id="resetApp">Reset App</button>
+    </div>
+</body>
+</html>

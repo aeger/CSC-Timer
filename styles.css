@@ -1,0 +1,341 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 20px;
+    transition: background 0.3s, color 0.3s;
+    line-height: 1.6;
+}
+.light {
+    background: #fff;
+    color: #000;
+}
+.dark {
+    background: #333;
+    color: #ddd;
+}
+.top-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: linear-gradient(135deg, #007bff, #28a745); /* Gradient header */
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+h1, h3, h4 {
+    margin: 10px 0;
+    font-weight: 500;
+}
+.light h1, .light h3, .light h4 {
+    color: #333;
+}
+.dark h1, .dark h3, .dark h4 {
+    color: #f0f0f0;
+}
+.title-container h1 {
+    color: #f37021 !important; /* BD.com orange with !important */
+    font-weight: 700;
+    font-style: italic;
+}
+.title-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.logo {
+    max-width: 100px;
+    height: auto;
+}
+.time-container {
+    text-align: center;
+    padding: 20px 0;
+    max-width: 90%;
+    margin-left: 5%;
+}
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-weight: 500;
+    color: #000; /* High contrast default text */
+}
+.light button {
+    background: #f0f0f0;
+}
+.dark button {
+    background: #495057;
+    color: #fff;
+}
+button:hover {
+    background: #d3d3d3;
+}
+.dark button:hover {
+    background: #6c757d;
+}
+button:active {
+    transform: scale(0.98);
+}
+#managerEscalation {
+    background: #007bff; /* Blue when disabled */
+}
+#managerEscalation.red-bg {
+    background: #dc3545; /* Red when enabled */
+}
+.status-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.status-buttons button {
+    min-width: 120px;
+}
+.status-buttons .green-bg {
+    background: #28a745;
+    color: white;
+}
+.status-buttons .orange-bg {
+    background: #fd7e14;
+    color: white;
+}
+.status-buttons .yellow-bg {
+    background: #ffc107;
+    color: black;
+}
+.status-buttons .blue-bg {
+    background: #007bff;
+    color: white;
+}
+.status-buttons .red-bg {
+    background: #dc3545;
+    color: white;
+}
+.green {
+    color: #28a745;
+}
+.yellow {
+    color: #ffc107;
+}
+.red {
+    color: #dc3545;
+}
+#lightTheme.active {
+    background: #28a745;
+    color: white;
+}
+#darkTheme.active {
+    background: #007bff;
+    color: white;
+}
+.theme-icon {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-right: 5px;
+    fill: currentColor;
+}
+.light .theme-icon {
+    fill: #333;
+}
+.dark .theme-icon {
+    fill: #f0f0f0;
+}
+.schedule-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+.schedule-card {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+.schedule-card:hover {
+    transform: scale(1.02);
+}
+.dark .schedule-card {
+    background: #444;
+}
+.schedule-card.current-card {
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { border: 2px solid #007bff; }
+    50% { border: 2px solid #28a745; }
+    100% { border: 2px solid #007bff; }
+}
+.light th, .light td {
+    background: #fff;
+    color: #333;
+    border-color: #ccc;
+}
+.light .upcoming-card { background: #e0f7e9; }
+.light .nearing-card { background: #fff9e6; }
+.light .overdue-card { background: #fce4e4; }
+.dark .upcoming-card { background: #2c4c2c; }
+.dark .nearing-card { background: #4d3f1a; }
+.dark .overdue-card { background: #4d1a1a; }
+.schedule-input {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+input[type="number"], input[type="time"], select {
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-family: 'Roboto', sans-serif;
+}
+.light input[type="number"], .light input[type="time"], .light select {
+    background: #f8f9fa;
+    color: #495057;
+}
+.dark input[type="number"], .dark input[type="time"], .dark select {
+    background: #495057;
+    color: #f0f0f0;
+    border-color: #6c757d;
+}
+.settings-panel {
+    display: none;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    background: #f8f9fa;
+}
+.dark .settings-panel {
+    background: #444;
+}
+.show {
+    display: block;
+}
+svg.speaker {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin-left: 5px;
+    fill: currentColor;
+}
+.muted {
+    fill: red;
+}
+.sound-settings, .alert-settings {
+    width: 100%;
+}
+.sound-settings select, .sound-settings input[type="range"], .alert-settings input[type="range"] {
+    width: 200px;
+}
+.import-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 15px 0;
+}
+.import-container label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.sidebar {
+    max-width: 400px;
+}
+.highlight {
+    font-weight: 700;
+    transition: color 0.3s;
+    margin: 10px 0;
+}
+.clock {
+    font-size: 4em;
+    transition: color 0.3s; /* Smooth color change */
+}
+.highlight:not(.clock) {
+    font-size: 2em;
+}
+.status-label {
+    font-size: 2.2em;
+    font-weight: bold;
+    color: #f37021;
+}
+.status-text {
+    color: #6c757d;
+}
+.countdown-text {
+    color: #007bff;
+}
+.countdown-text.yellow {
+    color: #ffc107;
+}
+.countdown-text.red {
+    color: #dc3545;
+}
+.theme-header {
+    color: #fff;
+    border-bottom: 2px solid #007bff;
+    background-color: rgba(0, 123, 255, 0.1);
+}
+.time-format-header {
+    color: #fff;
+    border-bottom: 2px solid #28a745;
+    background-color: rgba(40, 167, 69, 0.1);
+}
+.alert-times-header {
+    color: #fff;
+    border-bottom: 2px solid #ffc107;
+    background-color: rgba(255, 193, 7, 0.1);
+}
+.sounds-header {
+    color: #fff;
+    border-bottom: 2px solid #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+}
+.click-sounds-header {
+    color: #fff;
+    border-bottom: 2px solid #fd7e14;
+    background-color: rgba(253, 126, 20, 0.1);
+}
+.sidebar-mode-header {
+    color: #fff;
+    border-bottom: 2px solid #6c757d;
+    background-color: rgba(108, 117, 125, 0.1);
+}
+.data-management-header {
+    color: #fff;
+    border-bottom: 2px solid #495057;
+    background-color: rgba(73, 80, 87, 0.1);
+}
+.dark .theme-header, .dark .time-format-header, .dark .alert-times-header, .dark .sounds-header, .dark .click-sounds-header, .dark .sidebar-mode-header, .dark .data-management-header {
+    color: #fff;
+}
+@media (max-width: 600px) {
+    .highlight {
+        font-size: 1.5em;
+    }
+    .clock {
+        font-size: 3em;
+    }
+    .status-buttons {
+        flex-direction: column;
+    }
+    .status-buttons button {
+        width: 100%;
+    }
+    .import-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+.icon {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+#expectedStatus {
+    transition: color 0.3s; /* Smooth color change for expected status */
+}

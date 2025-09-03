@@ -1,0 +1,10 @@
+{
+    "name": "CSC Adherence Timer",
+    "short_name": "Adherence Timer",
+    "description": "Alert app for work status changes",
+    "start_url": ".",
+    "display": "standalone",
+    "edge_side_panel": {
+        "preferred_width": 400
+    }
+}
