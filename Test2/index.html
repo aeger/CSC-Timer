@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CSC Adherence Timer</title>
+
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Icons + audio -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js" defer></script>
+  <script src="sfx.js" defer></script>
+</head>
+<body class="dark">
+  <header>
+    <img src="logo.png" alt="CSC logo" />
+    <h1>CSC Adherence Timer</h1>
+    <div class="controls ml-auto" role="group" aria-label="App controls">
+      <label for="profileSwitcher">Select Profile:</label>
+      <select id="profileSwitcher" title="Select a profile">
+        <option value="default">default</option>
+      </select>
+      <button id="toggleSettings" type="button" title="Show or hide settings">Show/Hide Settings</button>
+      <button id="installApp" type="button" title="Install this app" disabled>Install</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="controls" role="group" aria-label="Top actions">
+      <button id="managerEscalation" class="escalation" type="button" title="Mute alerts except Break/Meal">
+        Manager Escalation: OFF
+      </button>
+      <span class="hint">When ON, only Break and Meal sounds play.</span>
+    </div>
+
+    <section class="time-container state-upcoming" aria-live="polite">
+      <div class="clock" id="currentTime" aria-label="Current time">00:00:00</div>
+      <div class="time-metadata">
+        <div class="countdown" id="countdown">🕒 Countdown to next event: --</div>
+        <div class="expected-status" id="expectedStatus">Current Expected Status: --</div>
+        <div class="subtle-date" id="currentDate" aria-label="Current date">—</div>
+      </div>
+    </section>
+
+    <!-- Timeline with ticks, markers, and progress -->
+    <div class="timeline" aria-label="Day progress">
+      <div id="timelineTicks" class="timeline-ticks">
+        <span data-p="0">00:00</span>
+        <span data-p="25">06:00</span>
+        <span data-p="50">12:00</span>
+        <span data-p="75">18:00</span>
+        <span data-p="100">24:00</span>
+      </div>
+      <div id="timelineEvents" class="timeline-events"></div>
+      <div id="timelineProgress" class="timeline-progress" aria-hidden="true"></div>
+    </div>
+
+    <!-- Acknowledge current status -->
+    <div id="queue-group" class="status-buttons" role="group" aria-label="Acknowledge current status">
+      <button id="onQueue"   type="button" title="On Queue"><i class="fa-solid fa-headset"></i> On Queue</button>
+      <button id="available" type="button" title="Available"><i class="fa-solid fa-check-circle"></i> Available</button>
+      <button id="c2c"       type="button" title="Online training class"><i class="fa-solid fa-chalkboard-user"></i> C2C</button>
+      <button id="break"     type="button" title="Break"><i class="fa-solid fa-mug-saucer"></i> Break</button>
+      <button id="meal"      type="button" title="Meal"><i class="fa-solid fa-utensils"></i> Meal</button>
+      <button id="meeting"   type="button" title="Meeting"><i class="fa-solid fa-users"></i> Meeting</button>
+      <button id="busy"      type="button" title="Busy"><i class="fa-solid fa-ban"></i> Busy</button>
+      <button id="shiftEnd"  type="button" title="Shift End"><i class="fa-solid fa-door-open"></i> Shift End</button>
+    </div>
+
+    <div class="grid mt-12">
+      <!-- LEFT: schedule cards and inline editor -->
+      <section aria-labelledby="schedule-heading">
+        <h2 id="schedule-heading" class="sr-only">Schedule</h2>
+
+        <div id="inlineEditor" class="inline-editor" hidden>
+          <div class="section-title">Edit selected event</div>
+          <div class="controls">
+            <label for="editType">Type</label>
+            <select id="editType">
+              <option>On Queue</option><option>Available</option><option>C2C</option>
+              <option>Break</option><option>Meal</option><option>Meeting</option>
+              <option>Busy</option><option>Shift End</option>
+            </select>
+            <label for="editTime">Time</label>
+            <input id="editTime" type="time" step="60" />
+            <button id="saveChanges" class="success" type="button">Save</button>
+            <button id="cancelChanges" type="button">Cancel</button>
+          </div>
+        </div>
+
+        <div id="scheduleCards" aria-live="polite"></div>
+      </section>
+
+      <!-- RIGHT: settings + quick add + planner -->
+      <aside aria-labelledby="settings-heading">
+        <h2 id="settings-heading" class="sr-only">Settings</h2>
+
+        <div id="settingsPanel" hidden>
+          <div class="section-title">Profiles</div>
+          <div class="row">
+            <button id="addProfile" type="button" title="Create a new profile">Add Profile</button>
+            <button id="deleteProfile" type="button" class="danger" title="Delete current profile">Delete Profile</button>
+            <span id="currentProfileLabel" class="hint">Current: default</span>
+          </div>
+
+          <div class="section-title">General</div>
+          <div class="row">
+            <label for="timeFormat" class="inline">Time format
+              <select id="timeFormat">
+                <option value="12">12h</option>
+                <option value="24">24h</option>
+              </select>
+            </label>
+            <label for="timeZone" class="inline">Time zone
+              <select id="timeZone" title="Time zone"></select>
+            </label>
+          </div>
+
+          <div class="section-title">Event Timing</div>
+          <div class="row">
+            <label class="inline">Lead warning (min)
+              <input id="leadSlider" type="range" min="1" max="30" value="5" />
+              <span id="leadVal">5</span>
+            </label>
+            <label class="inline">First overdue (min)
+              <input id="over1Slider" type="range" min="1" max="30" value="2" />
+              <span id="over1Val">2</span>
+            </label>
+            <label class="inline">Second overdue (min)
+              <input id="over2Slider" type="range" min="1" max="30" value="5" />
+              <span id="over2Val">5</span>
+            </label>
+          </div>
+
+          <div class="section-title">Sounds</div>
+          <div class="row">
+            <label class="inline"><input id="enableSounds" type="checkbox" checked /> Enable alert sounds</label>
+            <label class="inline"><input id="enableClicks" type="checkbox" checked /> Enable click sounds</label>
+          </div>
+          <div class="row">
+            <label for="clickPattern" class="inline">Click sound
+              <select id="clickPattern" title="Click sound"></select>
+            </label>
+            <button id="previewClick" type="button" class="preview" title="Preview click">▶︎</button>
+          </div>
+          <div class="row">
+            <label for="leadPattern" class="inline">Lead warning
+              <select id="leadPattern" title="Lead warning"></select>
+            </label>
+            <button id="previewLead" type="button" class="preview">▶︎</button>
+          </div>
+          <div class="row">
+            <label for="atPattern" class="inline">At event
+              <select id="atPattern" title="At event"></select>
+            </label>
+            <button id="previewAt" type="button" class="preview">▶︎</button>
+          </div>
+          <div class="row">
+            <label for="over1Pattern" class="inline">After event (first)
+              <select id="over1Pattern" title="After event (first)"></select>
+            </label>
+            <button id="previewOver1" type="button" class="preview">▶︎</button>
+          </div>
+          <div class="row">
+            <label for="over2Pattern" class="inline">After event (second)
+              <select id="over2Pattern" title="After event (second)"></select>
+            </label>
+            <button id="previewOver2" type="button" class="preview">▶︎</button>
+          </div>
+          <div class="row">
+            <input id="uploadSound" type="file" accept="audio/mp3" hidden />
+            <button id="uploadSoundBtn" type="button" title="Upload a custom .mp3">Upload .mp3…</button>
+            <span class="hint">Stored locally; selectable above.</span>
+          </div>
+
+          <div class="section-title">Schedules</div>
+          <div class="row">
+            <input type="file" id="importFile" accept="application/json" />
+            <button id="importBtn" type="button" title="Import selected JSON">Import</button>
+            <button id="exportSchedule" type="button" title="Export current list">Export</button>
+            <button id="exportAll" type="button" title="Export ad-hoc + planner for profile">Export All</button>
+            <button id="resetApp" class="danger" type="button" title="Clear all data">Reset</button>
+          </div>
+        </div>
+
+        <!-- Quick Add above planner -->
+        <div class="section-title">Quick Add</div>
+        <div class="controls">
+          <label for="eventType">Event</label>
+          <select id="eventType" title="Event type">
+            <option>On Queue</option><option>Available</option><option>C2C</option>
+            <option>Break</option><option>Meal</option><option>Meeting</option>
+            <option>Busy</option><option>Shift End</option>
+          </select>
+          <label for="eventTime">Time</label>
+          <input id="eventTime" type="time" step="60" title="Event time" />
+          <button id="addEvent" class="primary" type="button" title="Add to active day/list">Add</button>
+        </div>
+
+        <div class="planner-wrap">
+          <table id="weekTable" aria-label="Weekly planner">
+            <thead>
+              <tr>
+                <th data-day-h="Sun">Sun <button class="ghost add" type="button" data-day="Sun" title="Add">＋</button></th>
+                <th data-day-h="Mon">Mon <button class="ghost add" type="button" data-day="Mon" title="Add">＋</button></th>
+                <th data-day-h="Tue">Tue <button class="ghost add" type="button" data-day="Tue" title="Add">＋</button></th>
+                <th data-day-h="Wed">Wed <button class="ghost add" type="button" data-day="Wed" title="Add">＋</button></th>
+                <th data-day-h="Thu">Thu <button class="ghost add" type="button" data-day="Thu" title="Add">＋</button></th>
+                <th data-day-h="Fri">Fri <button class="ghost add" type="button" data-day="Fri" title="Add">＋</button></th>
+                <th data-day-h="Sat">Sat <button class="ghost add" type="button" data-day="Sat" title="Add">＋</button></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-day="Sun"></td><td data-day="Mon"></td><td data-day="Tue"></td>
+                <td data-day="Wed"></td><td data-day="Thu"></td><td data-day="Fri"></td><td data-day="Sat"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Planner popup -->
+  <div id="plannerPopup" class="popup" hidden>
+    <div class="popup-title">Planner event</div>
+    <label>Time <input type="time" id="ppTime" step="60" title="Event time" /></label>
+    <label>Type
+      <select id="ppType" title="Event type">
+        <option>On Queue</option><option>Available</option><option>C2C</option>
+        <option>Break</option><option>Meal</option><option>Meeting</option>
+        <option>Busy</option><option>Shift End</option>
+      </select>
+    </label>
+    <div class="popup-actions">
+      <button id="ppSave" class="primary" type="button">Save</button>
+      <button id="ppCancel" type="button">Cancel</button>
+    </div>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
