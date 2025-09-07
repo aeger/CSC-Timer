@@ -1,0 +1,117 @@
+{
+  "profile": "Demo",
+  "adhoc": [
+    {
+      "time": "09:00",
+      "type": "On Queue"
+    },
+    {
+      "time": "11:30",
+      "type": "Meal"
+    },
+    {
+      "time": "20:30",
+      "type": "Shift End"
+    }
+  ],
+  "week": {
+    "Sun": [
+      {
+        "time": "09:00",
+        "type": "On Queue"
+      },
+      {
+        "time": "11:30",
+        "type": "Meal"
+      },
+      {
+        "time": "20:30",
+        "type": "Shift End"
+      }
+    ],
+    "Mon": [
+      {
+        "time": "09:00",
+        "type": "On Queue"
+      },
+      {
+        "time": "11:30",
+        "type": "Meal"
+      },
+      {
+        "time": "20:30",
+        "type": "Shift End"
+      }
+    ],
+    "Tue": [
+      {
+        "time": "09:00",
+        "type": "On Queue"
+      },
+      {
+        "time": "11:30",
+        "type": "Meal"
+      },
+      {
+        "time": "20:30",
+        "type": "Shift End"
+      }
+    ],
+    "Wed": [
+      {
+        "time": "09:00",
+        "type": "On Queue"
+      },
+      {
+        "time": "11:30",
+        "type": "Meal"
+      },
+      {
+        "time": "20:30",
+        "type": "Shift End"
+      }
+    ],
+    "Thu": [
+      {
+        "time": "09:00",
+        "type": "On Queue"
+      },
+      {
+        "time": "11:30",
+        "type": "Meal"
+      },
+      {
+        "time": "20:30",
+        "type": "Shift End"
+      }
+    ],
+    "Fri": [
+      {
+        "time": "09:00",
+        "type": "On Queue"
+      },
+      {
+        "time": "11:30",
+        "type": "Meal"
+      },
+      {
+        "time": "20:30",
+        "type": "Shift End"
+      }
+    ],
+    "Sat": [
+      {
+        "time": "09:00",
+        "type": "On Queue"
+      },
+      {
+        "time": "11:30",
+        "type": "Meal"
+      },
+      {
+        "time": "20:30",
+        "type": "Shift End"
+      }
+    ]
+  }
+}
