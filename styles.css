@@ -1,0 +1,282 @@
+/*
+PROJECT: CSC Adherence Timer — build1 baseline
+Version: v0.5-build1
+Generated: 2025-09-09 14:43:17
+*/
+:root{
+  --bg:#0b1220; --fg:#e5e7eb; --card:#0f172a; --muted:#94a3b8;
+  --brand:#0033a0; --accent:#ff6a13; --ok:#2a9d8f; --warn:#f4a261; --bad:#e63946;
+}
+
+/* Light theme variables inspired by bd.com: soft blues and whites */
+body.light{
+  /*
+   * Light theme palette tuned for better contrast on pale backgrounds.  The
+   * foreground text uses a dark blue instead of light grey, and muted text
+   * is slightly darker for readability.  Accent colours are softened but
+   * remain distinct.  See README for theme guidance.
+   */
+  --bg:#fdfefe;
+  --fg:#002e5b;
+  --card:#ffffff;
+  --muted:#42526e;
+  --brand:#003e7e;
+  --accent:#0071c1;
+  --ok:#2a9d8f;
+  --warn:#e9a531;
+  --bad:#c7443f;
+}
+
+/* Override some component backgrounds and borders in light mode */
+body.light header{
+  background:linear-gradient(90deg,#004a99 0%, var(--brand) 45%, var(--accent) 100%);
+  color:#fff;
+}
+body.light .time-container{
+  background:#e0ecf7;
+  border-color:#c5d9ee;
+}
+body.light .timeline{ background:#d9e6f2; }
+body.light .schedule-card{
+  background:var(--card);
+  border-left-width:8px;
+}
+body.light .inline-editor,
+body.light #settingsPanel,
+body.light .planner-wrap #weekTable,
+body.light .event-item,
+body.light .popup{
+  background:var(--card);
+  border-color:#c5d9ee;
+}
+body.light .status-buttons{ background:var(--card); border-color:#c5d9ee; }
+body.light #weekTable th.selected{ background:var(--accent); color:#fff; border-color:var(--accent); }
+body.light #weekTable td.selected{ background:#eef5fd; outline-color:#60a5fa; }
+body.light .timeline-progress{ background:linear-gradient(90deg,#3bb273,#2a8bd6); }
+
+/*
+ * In light mode, ensure weekly planner events have dark text and
+ * controls with sufficient contrast.  Without this, the base styles
+ * (designed for dark mode) produce pale text on a light card.
+ */
+body.light .event-item {
+  color: var(--fg);
+}
+body.light .event-item .kill,
+body.light .event-item .edit {
+  border-color: #b0c4df;
+  color: var(--fg);
+}
+
+/*
+ * Additional light-theme tweaks for readability.  Use the brand colour for
+ * section headings, dark text for labels and subdued hints.  These rules
+ * override the default colours defined earlier.
+ */
+body.light .section-title { color: var(--brand); }
+body.light .form-grid .label { color: var(--fg); }
+body.light .hint { color: #5a6b82; }
+
+/* Highlight invalid inputs */
+input.error-highlight, input.error-highlight:focus{
+  border-color:var(--bad);
+  outline-color:var(--bad);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial}
+header{
+  display:flex;align-items:center;gap:16px;padding:14px 16px;
+  background:linear-gradient(90deg,#001a66 0%, var(--brand) 45%, var(--accent) 100%);
+  color:#fff;
+}
+header img{width:128px;height:128px}
+.title-wrap h1{margin:0;font-size:28px;font-weight:900;color:var(--accent);text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.subtle-date{color:#d1d5db;font-size:.95rem}
+.container{max-width:1180px;margin:14px auto;padding:0 14px}
+.controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0 14px}
+.top-actions{margin-top:6px}
+.ml-auto{margin-left:auto}
+.mt-12{margin-top:12px}
+.section-title{color:#9fd3ff;font-weight:800;margin:6px 0 2px}
+.hint{color:#9ca3af;font-size:12px}
+
+select,button,input[type="time"],input[type="text"],input[type="range"],input[type="file"],input[type="checkbox"]{
+  background:var(--bg);color:var(--fg);border:1px solid #334155;border-radius:10px;padding:6px 10px;
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+button{cursor:pointer}
+button.primary{background:#3b82f6;border-color:#3b82f6}
+button.danger{background:#ef4444;border-color:#ef4444}
+button.success{background:var(--ok);border-color:var(--ok);color:#062b24}
+button.ghost{background:transparent;border-color:#334155}
+.escalation{background:#3b82f6;border-color:#3b82f6}
+.escalation.on{background:#ef4444;border-color:#ef4444}
+
+/* Clock area */
+.time-container{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:16px;border-radius:14px;background:#0c1a30;border:1px solid #24324a}
+.time-container .clock{font-size:3.2rem;font-weight:900;letter-spacing:1px}
+.time-metadata{display:flex;flex-direction:column;gap:4px}
+.time-container .countdown{font-size:1.35rem;font-weight:800;color:#60a5fa}
+.time-container .expected-status{font-size:1.1rem;font-weight:700}
+.time-container.state-upcoming .clock,.time-container.state-upcoming .expected-status{color:var(--ok)}
+.time-container.state-nearing  .clock,.time-container.state-nearing  .expected-status{color:var(--warn)}
+.time-container.state-overdue  .clock,.time-container.state-overdue  .expected-status{color:var(--bad)}
+
+/* Pulse animation applied when overdue and the expected status is not acknowledged. */
+@keyframes pulseAlert {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* When overdue and unacknowledged, pulse the clock and expected status text. */
+.time-container.pulse-alert .clock,
+.time-container.pulse-alert .expected-status {
+  animation: pulseAlert 1.2s ease-in-out infinite;
+  color: var(--bad);
+}
+
+/* Highlight the current timeline marker when overdue and unacknowledged */
+.timeline-events .mark.highlight {
+  width: 18px;
+  height: 18px;
+  margin-top: -4px;
+  background: var(--bad);
+  border-color: var(--bad);
+  box-shadow: 0 0 6px 2px rgba(230,57,70,0.7);
+  z-index: 4;
+}
+
+/* Timeline with ticks and event markers */
+.timeline{position:relative;height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:12px 0}
+.timeline-progress{position:absolute;inset:0;background:linear-gradient(90deg,#2a9d8f,#457b9d);transform-origin:left;transform:scaleX(0);z-index:1}
+.timeline-ticks{position:absolute;inset:-18px 0 auto 0;display:flex;justify-content:space-between;pointer-events:none;font-size:11px;color:#cbd5e1;z-index:3}
+.timeline-ticks span{position:relative}
+.timeline-ticks span::before{content:"";position:absolute;left:50%;transform:translateX(-50%);top:16px;width:2px;height:12px;background:#94a3b8}
+.timeline-events{position:absolute;inset:0;z-index:2}
+.timeline-events .mark{position:absolute;top:-3px;width:14px;height:14px;border-radius:50%;border:2px solid #0b1220;box-shadow:0 0 0 2px rgba(0,0,0,.2);transform:translateX(-50%);background:#9ca3af}
+.timeline-events .onqueue   { background:#38bdf8 }
+.timeline-events .available { background:#22c55e }
+.timeline-events .c2c       { background:#818cf8 }
+.timeline-events .break     { background:var(--warn) }
+.timeline-events .meal      { background:#ffb703 }
+.timeline-events .meeting   { background:#60a5fa }
+.timeline-events .busy      { background:#ef4444 }
+.timeline-events .shiftend  { background:#9ca3af }
+
+/* Status buttons: expected/current/ack states */
+.status-buttons{display:flex;gap:8px;flex-wrap:wrap;background:var(--bg);border:1px solid #334155;border-radius:12px;padding:10px}
+.status-buttons button i{margin-right:6px}
+.status-buttons button.expected{outline:2px solid var(--ok)}
+.status-buttons button.current{outline:2px solid #60a5fa}
+.status-buttons button.ack-ok{background:var(--ok);border-color:var(--ok);color:#062b24}
+.status-buttons button.ack-wrong{background:var(--bad);border-color:var(--bad)}
+
+/* Schedule cards */
+#scheduleCards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.schedule-card{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.6rem;padding:.6rem .85rem;border-radius:14px;background:var(--bg);border-left:8px solid #3b82f6}
+.schedule-card .card-time{font-weight:800}
+.upcoming-card{border-left-color:var(--ok)}
+.nearing-card{border-left-color:var(--warn)}
+.overdue-card{border-left-color:var(--bad)}
+
+.inline-editor{background:var(--bg);border:1px solid #334155;border-radius:12px;padding:10px;margin-bottom:10px}
+
+/* Settings layout cleanup */
+#settingsPanel{background:var(--bg);border:1px solid #334155;border-radius:12px;padding:14px;margin-bottom:12px}
+.form-grid{display:grid;grid-template-columns: 220px 1fr;gap:10px 16px;align-items:center}
+.form-row{display:contents}
+.form-grid .label{justify-self:end;color:#cbd5e1}
+.form-grid .control{justify-self:start;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.form-grid .control.slider{gap:14px}
+#settingsPanel .preview{min-width:40px}
+
+/* Planner */
+.planner-wrap{overflow:auto}
+#weekTable{width:100%;min-width:920px;table-layout:fixed;background:var(--bg);border:1px solid #334155;border-radius:12px;overflow:hidden;font-size:12px;border-collapse:separate;border-spacing:0}
+#weekTable th,#weekTable td{border:1px solid #334155;vertical-align:top;position:relative}
+#weekTable th{padding:12px 8px 26px;line-height:1}
+#weekTable th .add{position:absolute;right:6px;top:6px;z-index:1}
+#weekTable td{padding:6px;min-height:140px}
+#weekTable th.selected{background:var(--accent);color:#0b1220;border-color:var(--accent)}
+#weekTable td.selected{outline:2px solid #60a5fa;outline-offset:-2px;background:#0f1b2d}
+.event-item{background:#1f2937;color:#e5e7eb;padding:.32rem .48rem;border-radius:8px;margin:.3rem 0;cursor:grab;border-left:6px solid #3b82f6;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.event-item .kill,.event-item .edit{background:transparent;border:1px solid #475569;border-radius:6px;padding:0 6px;height:22px}
+.event-item.break{border-left-color:var(--warn)}
+.event-item.meal{border-left-color:#ffb703}
+.event-item.meeting{border-left-color:#60a5fa}
+.event-item.available{border-left-color:#22c55e}
+.event-item.onqueue{border-left-color:#38bdf8}
+.event-item.c2c{border-left-color:#818cf8}
+.event-item.shiftend{border-left-color:#9ca3af}
+
+/*
+ * Highlight the current event in the planner.  When the clock is green,
+ * yellow or red, apply the same colour to both the text and the border
+ * of the event item.  These classes are dynamically added by
+ * updateStatus() and use the semantic colour variables defined in the
+ * theme.  Use !important to override the default colours.
+ */
+.event-item.current-upcoming {
+  border-left-color: var(--ok) !important;
+  color: var(--ok) !important;
+  background-color: rgba(42,157,143,0.15) !important;
+  font-weight: 600;
+  box-shadow: 0 0 6px rgba(42,157,143,0.4);
+}
+.event-item.current-nearing {
+  border-left-color: var(--warn) !important;
+  color: var(--warn) !important;
+  background-color: rgba(233,165,49,0.15) !important;
+  font-weight: 600;
+  box-shadow: 0 0 6px rgba(233,165,49,0.4);
+}
+.event-item.current-overdue {
+  border-left-color: var(--bad) !important;
+  color: var(--bad) !important;
+  background-color: rgba(199,68,63,0.20) !important;
+  font-weight: 600;
+  box-shadow: 0 0 6px rgba(199,68,63,0.5);
+}
+
+/* Popup */
+.popup{position:fixed;z-index:50;inset:auto 16px 16px auto;background:var(--bg);border:1px solid #334155;border-radius:12px;padding:12px;min-width:260px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.popup[hidden]{display:none}
+.popup-title{font-weight:800;margin-bottom:8px}
+.popup label{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0}
+.popup-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+
+/* Modal styling */
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card);border:1px solid var(--muted);border-radius:8px;padding:16px;z-index:100;min-width:240px;}
+.modal[hidden]{display:none;}
+.modal .modal-title{font-size:1.25rem;font-weight:600;margin-bottom:8px;}
+.modal label{display:block;margin:8px 0;color:var(--fg);}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;}
+
+/* Toast notifications */
+.toast-container{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:0.5rem;z-index:200;}
+.toast{padding:0.5rem 1rem;border-radius:4px;color:#fff;animation:fadeOut 5s forwards;font-size:0.875rem;}
+.toast.info{background-color:var(--brand);}
+.toast.success{background-color:var(--ok);}
+.toast.error{background-color:var(--bad);}
+@keyframes fadeOut{0%{opacity:1;}100%{opacity:0;transform:translateY(10px);}}
+
+/* A11y */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Responsive */
+@media (max-width: 880px){
+  .form-grid{grid-template-columns: 1fr}
+  .form-grid .label{justify-self:start}
+}
+
+/* Subtle hover without seizure-inducing pulsing */
+@media (hover:hover) and (pointer:fine){
+  @media (prefers-reduced-motion:no-preference){
+    button:hover, .schedule-card:hover, .event-item:hover{
+      transform:translateY(-1px);
+      box-shadow:0 6px 18px rgba(0,0,0,.25)
+    }
+    button:active{ transform:translateY(0) }
+  }
+}
