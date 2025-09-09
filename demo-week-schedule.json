@@ -1,24 +1,117 @@
 {
-  "profile": "default",
-  "weekStart": "2025-09-08",
-  "events": [
+  "profile": "Demo",
+  "adhoc": [
     {
-      "id": "evt1",
-      "title": "Available",
-      "start": "2025-09-08T09:00:00-07:00",
-      "end": "2025-09-08T11:00:00-07:00"
+      "time": "09:00",
+      "type": "On Queue"
     },
     {
-      "id": "evt2",
-      "title": "Break",
-      "start": "2025-09-08T11:00:00-07:00",
-      "end": "2025-09-08T11:15:00-07:00"
+      "time": "11:30",
+      "type": "Meal"
     },
     {
-      "id": "evt3",
-      "title": "C2C",
-      "start": "2025-09-09T13:00:00-07:00",
-      "end": "2025-09-09T14:00:00-07:00"
+      "time": "20:30",
+      "type": "Shift End"
     }
-  ]
+  ],
+  "week": {
+    "Sun": [
+      {
+        "time": "09:00",
+        "type": "On Queue"
+      },
+      {
+        "time": "11:30",
+        "type": "Meal"
+      },
+      {
+        "time": "20:30",
+        "type": "Shift End"
+      }
+    ],
+    "Mon": [
+      {
+        "time": "09:00",
+        "type": "On Queue"
+      },
+      {
+        "time": "11:30",
+        "type": "Meal"
+      },
+      {
+        "time": "20:30",
+        "type": "Shift End"
+      }
+    ],
+    "Tue": [
+      {
+        "time": "09:00",
+        "type": "On Queue"
+      },
+      {
+        "time": "11:30",
+        "type": "Meal"
+      },
+      {
+        "time": "20:30",
+        "type": "Shift End"
+      }
+    ],
+    "Wed": [
+      {
+        "time": "09:00",
+        "type": "On Queue"
+      },
+      {
+        "time": "11:30",
+        "type": "Meal"
+      },
+      {
+        "time": "20:30",
+        "type": "Shift End"
+      }
+    ],
+    "Thu": [
+      {
+        "time": "09:00",
+        "type": "On Queue"
+      },
+      {
+        "time": "11:30",
+        "type": "Meal"
+      },
+      {
+        "time": "20:30",
+        "type": "Shift End"
+      }
+    ],
+    "Fri": [
+      {
+        "time": "09:00",
+        "type": "On Queue"
+      },
+      {
+        "time": "11:30",
+        "type": "Meal"
+      },
+      {
+        "time": "20:30",
+        "type": "Shift End"
+      }
+    ],
+    "Sat": [
+      {
+        "time": "09:00",
+        "type": "On Queue"
+      },
+      {
+        "time": "11:30",
+        "type": "Meal"
+      },
+      {
+        "time": "20:30",
+        "type": "Shift End"
+      }
+    ]
+  }
 }
