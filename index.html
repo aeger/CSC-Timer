@@ -1,0 +1,33 @@
+<!-- PROJECT: CSC Adherence Timer — build1 baseline | v0.5-build1 | 2025-09-08 21:59:53 -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSC Adherence Timer</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <img src="logo.png" alt="CSC logo" class="logo">
+    <h1>CSC Adherence Timer</h1>
+    <small>v0.5-build1</small>
+  </header>
+
+  <main id="app">
+    <div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+    <section class="controls">
+      <button id="btn-load">Load Demo Week</button>
+      <button id="btn-export-ics">Export iCal</button>
+    </section>
+    <section id="schedule"></section>
+  </main>
+
+  <script src="sfx.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
