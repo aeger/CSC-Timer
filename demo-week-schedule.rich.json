@@ -1,0 +1,77 @@
+{
+  "profile": "Demo Plus",
+  "adhoc": [
+    { "time": "08:55", "type": "Ready" },
+    { "time": "09:00", "type": "On Queue" },
+    { "time": "10:30", "type": "Break" },
+    { "time": "11:30", "type": "Meal" },
+    { "time": "12:00", "type": "Available" },
+    { "time": "13:00", "type": "C2C" },
+    { "time": "14:30", "type": "Break" },
+    { "time": "16:30", "type": "Shift End" }
+  ],
+  "week": {
+    "Sun": [
+      { "time": "10:00", "type": "On Queue" },
+      { "time": "12:00", "type": "Meal" },
+      { "time": "15:00", "type": "Available" },
+      { "time": "17:00", "type": "Shift End" }
+    ],
+    "Mon": [
+      { "time": "08:55", "type": "Ready" },
+      { "time": "09:00", "type": "On Queue" },
+      { "time": "10:30", "type": "Break" },
+      { "time": "11:30", "type": "Meal" },
+      { "time": "12:00", "type": "Available" },
+      { "time": "13:00", "type": "C2C" },
+      { "time": "14:30", "type": "Break" },
+      { "time": "16:30", "type": "Shift End" }
+    ],
+    "Tue": [
+      { "time": "08:55", "type": "Ready" },
+      { "time": "09:00", "type": "On Queue" },
+      { "time": "10:30", "type": "Break" },
+      { "time": "11:30", "type": "Meal" },
+      { "time": "12:00", "type": "Available" },
+      { "time": "13:00", "type": "C2C" },
+      { "time": "14:30", "type": "Break" },
+      { "time": "16:30", "type": "Shift End" }
+    ],
+    "Wed": [
+      { "time": "08:55", "type": "Ready" },
+      { "time": "09:00", "type": "On Queue" },
+      { "time": "10:30", "type": "Break" },
+      { "time": "11:30", "type": "Meal" },
+      { "time": "12:00", "type": "Available" },
+      { "time": "13:00", "type": "C2C" },
+      { "time": "14:30", "type": "Break" },
+      { "time": "16:30", "type": "Shift End" }
+    ],
+    "Thu": [
+      { "time": "08:55", "type": "Ready" },
+      { "time": "09:00", "type": "On Queue" },
+      { "time": "10:30", "type": "Break" },
+      { "time": "11:30", "type": "Meal" },
+      { "time": "12:00", "type": "Available" },
+      { "time": "13:00", "type": "C2C" },
+      { "time": "14:30", "type": "Break" },
+      { "time": "16:30", "type": "Shift End" }
+    ],
+    "Fri": [
+      { "time": "08:55", "type": "Ready" },
+      { "time": "09:00", "type": "On Queue" },
+      { "time": "10:30", "type": "Break" },
+      { "time": "11:30", "type": "Meal" },
+      { "time": "12:00", "type": "Available" },
+      { "time": "13:00", "type": "C2C" },
+      { "time": "14:30", "type": "Break" },
+      { "time": "16:30", "type": "Shift End" }
+    ],
+    "Sat": [
+      { "time": "10:00", "type": "On Queue" },
+      { "time": "12:00", "type": "Meal" },
+      { "time": "15:00", "type": "Available" },
+      { "time": "17:00", "type": "Shift End" }
+    ]
+  }
+}

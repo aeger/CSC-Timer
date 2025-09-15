@@ -1,8 +1,3 @@
-/*
-PROJECT: CSC Adherence Timer — build1 baseline
-Version: v0.5-build1
-Generated: 2025-09-09 14:43:17
-*/
 // sfx.js - click sounds + audio backend log
 (function(){
   console.log('Audio backend:', (window.Howler && Howler.usingWebAudio) ? 'WebAudio' : 'HTML5');

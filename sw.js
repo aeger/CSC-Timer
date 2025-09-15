@@ -1,13 +1,8 @@
-/*
-PROJECT: CSC Adherence Timer — build1 baseline
-Version: v0.5-build1
-Generated: 2025-09-09 14:43:17
-*/
 /* sw.js simple cache */
 // Use a versioned cache name for the service worker.  Bump this when
 // updating cached files.  Paths below are relative so the app works from
 // subdirectories (e.g. /Test1/).
-const CACHE = 'csc-v1-r50-v0.5-build1';
+const CACHE = 'csc-v0.5.2';
 const CORE = [
   './',
   'index.html', 'styles.css', 'app.js', 'sfx.js',
