@@ -1,5 +1,4 @@
-<!-- PROJECT: CSC Adherence Timer — build1 baseline | v0.5-build1 | 2025-09-09 14:43:17 -->
-# CSC Adherence Timer — v0.5-build1
+# CSC Adherence Timer (v0.5.2)
 
 A lightweight, offline-capable web app to show the current time, countdown to the next event, color-coded status, audible alerts, and a weekly planner.
 

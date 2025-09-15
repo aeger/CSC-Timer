@@ -1,9 +1,5 @@
-/*
-PROJECT: CSC Adherence Timer — build1 baseline
-Version: v0.5-build1
-Generated: 2025-09-09 14:43:17
-*/
-/* CSC Adherence Timer app.js (v1 r38) */
+const VERSION='v0.5.2';
+/* CSC Adherence Timer app.js (v0.5.2) */
 (() => {
   'use strict';
   if (window.__CSC_BOOTED__) return;
@@ -528,14 +524,7 @@ function syncProfileLabel() {
         key = 'overdue';
       } else {
         const hasExp = expectedType && expectedType.toLowerCase() !== 'none' && !notScheduled;
-        if (hasExp && !ackOK) {
-          key = 'overdue';
-        } else {
-          // When acknowledged, treat lead time as nearing and all other
-          // stages as upcoming (green).
-          if (stage === 'lead') key = 'nearing';
-          else key = 'upcoming';
-        }
+        if (stage === 'lead') { key = 'nearing'; } else if (hasExp && !ackOK) { key = 'overdue'; } else { key = 'upcoming'; }
       }
       tc.classList.remove('state-upcoming', 'state-nearing', 'state-overdue');
       tc.classList.add('state-' + key);
@@ -661,15 +650,20 @@ function syncProfileLabel() {
     }
     // Handle stage change and play notifications/sounds if not acknowledged
     if (stage && stage !== 'off' && stage !== state.lastStage) {
+      // v0.5.1: always play configured lead sound on entering lead
+      if (stage === 'lead') { try { playStage(stage, expectedType); } catch(e) {} }
+
       let ackOK = false;
       if (!notScheduled && expectedType && expectedType.toLowerCase() !== 'none') {
         const ack = (state.ackStatus || '').toLowerCase();
         const exp = (expectedType || '').toLowerCase();
         ackOK = (ack && ack === exp);
       }
-      if (!ackOK) {
+      if (stage === 'lead') {
         playStage(stage, expectedType);
-        try {
+      } else if (!ackOK) {
+        playStage(stage, expectedType);
+      try {
           notifyStage(stage, expectedType, cur ? cur.time : nxt?.time);
         } catch {}
       }
@@ -715,7 +709,7 @@ function syncProfileLabel() {
     saveAll(); renderSchedule(); renderWeek();
   }
 
-  // Remove inline editor handlers (editing now handled by modal)
+  // Inline editor handlers for ad-hoc schedules (weekly editing uses modal)
 
   /**
    * Render the weekly planner.  Each event element includes data attributes
@@ -1234,4 +1228,35 @@ function syncProfileLabel() {
     showOnboarding();
   }
   document.readyState==='loading' ? document.addEventListener('DOMContentLoaded', init, {once:true}) : init();
+})();
+
+// v0.5.2: populate version label
+document.addEventListener('DOMContentLoaded', ()=>{
+  try{ const el=document.getElementById('app-version'); if (el) el.textContent = (typeof VERSION!=='undefined'?VERSION:''); }catch{}
+});
+
+// v0.5.2: ensure audio context resumes on first interaction
+(function(){function u(){try{if(window.Howler&&Howler.ctx&&Howler.ctx.state==='suspended')Howler.ctx.resume()}catch{};
+window.removeEventListener('click',u);window.removeEventListener('keydown',u);window.removeEventListener('touchstart',u);} 
+window.addEventListener('click',u,{once:true});window.addEventListener('keydown',u,{once:true});window.addEventListener('touchstart',u,{once:true});})();
+
+// v0.5.2 stage→CSS sync
+(function(){
+  var __lastStageKey = '';
+  function applyStageClass(stage) {
+    document.body.classList.remove('state-on','state-lead','state-after');
+    var key = (stage === 'lead') ? 'lead' : (stage === 'after' ? 'after' : 'on');
+    document.body.classList.add('state-' + key);
+  }
+  setInterval(function(){
+    try {
+      if (typeof stage !== 'undefined') {
+        var key = (stage === 'lead') ? 'lead' : (stage === 'after' ? 'after' : 'on');
+        if (key !== __lastStageKey) {
+          applyStageClass(stage);
+          __lastStageKey = key;
+        }
+      }
+    } catch(e){}
+  }, 500);
 })();
