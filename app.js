@@ -264,9 +264,11 @@ const VERSION='v0.5.2';
     const now = new Date();
     for (const ev of list) {
       let t = parseHM(ev.time);
-      if (t < now) {
-        t = new Date(t.getTime() + 24 * 60 * 60 * 1000); // Assume next day
-      }
+      if (t > now) return ev;
+    }
+    // No future events today, check tomorrow
+    for (const ev of list) {
+      let t = new Date(parseHM(ev.time).getTime() + 24 * 60 * 60 * 1000);
       if (t > now) return ev;
     }
     return null;
@@ -291,7 +293,7 @@ function syncProfileLabel() {
     const list = activeList().slice().sort((a,b)=>a.time.localeCompare(b.time));
     list.forEach((ev,i)=>{
       let t = parseHM(ev.time);
-      if (t < now) {
+      if (t < now && t.getHours() < 6) {
         t = new Date(t.getTime() + 24 * 60 * 60 * 1000);
       }
       const diffMin = (t - now) / 60000;
@@ -729,7 +731,7 @@ function syncProfileLabel() {
       const p=prof(); (state.schedule[p] ||= []).push({time:t,type});
       state.schedule[p].sort((a,b)=>a.time.localeCompare(b.time));
     }
-    saveAll(); renderSchedule(); renderWeek();
+    saveAll(); renderSchedule(); renderWeek(); updateStatus();
   }
   function deleteEvent(i){
     if (state.selectedDay){ const p=prof(), w=getWeek(p); w[state.selectedDay].splice(i,1); setWeek(p,w); }
