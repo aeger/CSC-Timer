@@ -262,7 +262,13 @@ const VERSION='v0.5.2';
   function nextEvent(){
     const list = activeList().slice().sort((a,b)=>a.time.localeCompare(b.time));
     const now = new Date();
-    for (const ev of list) if (parseHM(ev.time) > now) return ev;
+    for (const ev of list) {
+      let t = parseHM(ev.time);
+      if (t < now) {
+        t = new Date(t.getTime() + 24 * 60 * 60 * 1000); // Assume next day
+      }
+      if (t > now) return ev;
+    }
     return null;
   }
   function currentEvent(){
@@ -284,7 +290,11 @@ function syncProfileLabel() {
     const now = new Date();
     const list = activeList().slice().sort((a,b)=>a.time.localeCompare(b.time));
     list.forEach((ev,i)=>{
-      const t=parseHM(ev.time), diffMin=(t-now)/60000;
+      let t = parseHM(ev.time);
+      if (t < now) {
+        t = new Date(t.getTime() + 24 * 60 * 60 * 1000);
+      }
+      const diffMin = (t - now) / 60000;
       const cls = diffMin < -state.settings.secondWarn ? 'overdue-card'
                 : diffMin <= state.settings.leadTime ? 'nearing-card' : 'upcoming-card';
       const card = document.createElement('div');
@@ -443,7 +453,10 @@ function syncProfileLabel() {
     let notScheduled = (list.length === 0);
     if (!notScheduled) {
       const first = parseHM(list[0].time);
-      const last  = parseHM(list[list.length - 1].time);
+      let last  = parseHM(list[list.length - 1].time);
+      if (last < first) {
+        last = new Date(last.getTime() + 24 * 60 * 60 * 1000); // Last event is next day
+      }
       const now = new Date();
       if (now < first || now > last) notScheduled = true;
     }
@@ -469,7 +482,10 @@ function syncProfileLabel() {
     } else {
       // There is at least one event.  Show countdown to the next event always.
       if (nxt) {
-        const nxtDate = parseHM(nxt.time);
+        let nxtDate = parseHM(nxt.time);
+        if (nxtDate < now) {
+          nxtDate = new Date(nxtDate.getTime() + 24 * 60 * 60 * 1000);
+        }
         const diffAbs = Math.max(0, nxtDate - now);
         const mins = Math.floor(diffAbs / 60000);
         const secs = Math.floor((diffAbs % 60000) / 1000);
@@ -492,7 +508,11 @@ function syncProfileLabel() {
         // Before the first event – treat lead time relative to the next event
         expectedType = cur ? cur.type : 'None';
         if (nxt) {
-          const diff = parseHM(nxt.time) - now;
+          let nextTime = parseHM(nxt.time);
+          if (nextTime < now) {
+            nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000); // Add one day
+          }
+          const diff = nextTime - now;
           if (diff <= leadMs) stage = 'lead';
         }
         es && (es.textContent = `Current Expected Status: ${expectedType}`);
@@ -501,7 +521,11 @@ function syncProfileLabel() {
 
     // Check for lead warning to next event, even during current event
     if (nxt && !notScheduled) {
-      const diff = parseHM(nxt.time) - now;
+      let nextTime = parseHM(nxt.time);
+      if (nextTime < now) {
+        nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000); // Add one day
+      }
+      const diff = nextTime - now;
       if (diff <= leadMs && (!stage || stage === 'at')) {
         stage = 'lead';
         // For lead warning during current event, expected type remains current
