@@ -515,7 +515,7 @@ function syncProfileLabel() {
             nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000); // Add one day
           }
           const diff = nextTime - now;
-          if (diff <= leadMs) stage = 'lead';
+          if (diff < leadMs) stage = 'lead';
         }
         es && (es.textContent = `Current Expected Status: ${expectedType}`);
       }
@@ -525,10 +525,10 @@ function syncProfileLabel() {
     if (nxt && !notScheduled) {
       let nextTime = parseHM(nxt.time);
       if (nextTime < now) {
-        nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000); // Add one day
+        nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000);
       }
       const diff = nextTime - now;
-      if (diff <= leadMs && (!stage || stage === 'at')) {
+      if (diff < leadMs && (!stage || stage === 'at')) {
         stage = 'lead';
         // For lead warning during current event, expected type remains current
       }
