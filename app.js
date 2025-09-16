@@ -499,6 +499,15 @@ function syncProfileLabel() {
       }
     }
 
+    // Check for lead warning to next event, even during current event
+    if (nxt && !notScheduled) {
+      const diff = parseHM(nxt.time) - now;
+      if (diff <= leadMs && (!stage || stage === 'at')) {
+        stage = 'lead';
+        // For lead warning during current event, expected type remains current
+      }
+    }
+
     // Determine whether the expected status has been acknowledged.  If
     // acknowledged, ackOK will be true; otherwise false.  Only compute
     // acknowledgment when there is a real expectedType (not None/Not scheduled).
@@ -651,16 +660,11 @@ function syncProfileLabel() {
     // Handle stage change and play notifications/sounds if not acknowledged
     if (stage && stage !== 'off' && stage !== state.lastStage) {
       // v0.5.1: always play configured lead sound on entering lead
-      if (stage === 'lead') { try { playStage(stage, expectedType); } catch(e) {} }
-
-      let ackOK = false;
-      if (!notScheduled && expectedType && expectedType.toLowerCase() !== 'none') {
-        const ack = (state.ackStatus || '').toLowerCase();
-        const exp = (expectedType || '').toLowerCase();
-        ackOK = (ack && ack === exp);
-      }
       if (stage === 'lead') {
         playStage(stage, expectedType);
+        try {
+          notifyStage(stage, nxt ? nxt.type : expectedType, nxt ? nxt.time : (cur ? cur.time : null));
+        } catch {}
       } else if (!ackOK) {
         playStage(stage, expectedType);
       try {
