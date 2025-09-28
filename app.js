@@ -515,7 +515,10 @@ function syncProfileLabel() {
             nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000); // Add one day
           }
           const diff = nextTime - now;
-          if (diff < leadMs) stage = 'lead';
+          if (diff <= leadMs) {
+            stage = 'lead';
+            expectedType = nxt.type;
+          }
         }
         es && (es.textContent = `Current Expected Status: ${expectedType}`);
       }
@@ -528,9 +531,9 @@ function syncProfileLabel() {
         nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000);
       }
       const diff = nextTime - now;
-      if (diff < leadMs && (!stage || stage === 'at')) {
+      if (diff <= leadMs && (!stage || stage === 'at')) {
         stage = 'lead';
-        // For lead warning during current event, expected type remains current
+        expectedType = nxt.type;
       }
     }
 
@@ -873,6 +876,23 @@ function syncProfileLabel() {
       setSelect('over1Pattern',list,state.settings.sounds.over1.file);
       setSelect('over2Pattern',list,state.settings.sounds.over2.file);
       showToast('Uploaded. Select it from the dropdowns.','success');
+    });
+
+    $('deleteSoundBtn')?.addEventListener('click', async () => {
+      const selected = $('clickPattern').value;
+      if (state.settings.customSounds && state.settings.customSounds[selected]) {
+        delete state.settings.customSounds[selected];
+        saveAll();
+        const list = await listSoundFiles();
+        setSelect('clickPattern', list, state.settings.clickPattern || 'click.mp3');
+        setSelect('leadPattern', list, state.settings.sounds.lead.file || 'a.mp3');
+        setSelect('atPattern', list, state.settings.sounds.at.file || 'a.mp3');
+        setSelect('over1Pattern', list, state.settings.sounds.over1.file || 'a.mp3');
+        setSelect('over2Pattern', list, state.settings.sounds.over2.file || 'a.mp3');
+        showToast('Custom sound deleted', 'success');
+      } else {
+        showToast('Selected sound is not a custom upload', 'error');
+      }
     });
   }
 

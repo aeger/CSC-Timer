@@ -191,13 +191,14 @@
               <div class="control"><select id="over2Pattern"></select> <button id="previewOver2" type="button" class="preview" title="Preview second overdue sound">▶︎</button></div>
             </div>
             <div class="form-row">
-              <label class="label" for="uploadSoundBtn">Upload .mp3</label>
+              <label class="label">Upload/Delete .mp3</label>
               <div class="control">
                 <!-- Hidden file input for custom audio uploads.  Marked as
-                     aria-hidden so it doesn’t require an explicit label.  The
+                     aria-hidden so it doesn't require an explicit label.  The
                      Upload button below triggers this input. -->
                 <input id="uploadSound" type="file" accept="audio/mp3" hidden aria-hidden="true" title="Select an MP3 file" />
                 <button id="uploadSoundBtn" type="button" title="Upload a custom .mp3">Upload…</button>
+                <button id="deleteSoundBtn" type="button" title="Delete selected custom sound">Delete</button>
               </div>
             </div>
           </div>
