@@ -862,7 +862,7 @@ function syncProfileLabel() {
     const files=await listSoundFiles();
     const s=state.settings; s.sounds=s.sounds||{lead:{},at:{},over1:{},over2:{}};
     setSelect('clickPattern',files,s.clickPattern||'click.mp3');
-    setSelect('leadPattern',files,s.sounds.lead.file||'a.mp3');
+    setSelect('leadPattern',files,s.sounds.lead.file||'notification tone.mp3');
     setSelect('atPattern',files,s.sounds.at.file||'a.mp3');
     setSelect('over1Pattern',files,s.sounds.over1.file||'a.mp3');
     setSelect('over2Pattern',files,s.sounds.over2.file||'a.mp3');
@@ -901,7 +901,7 @@ function syncProfileLabel() {
         saveAll();
         const list = await listSoundFiles();
         setSelect('clickPattern', list, state.settings.clickPattern || 'click.mp3');
-        setSelect('leadPattern', list, state.settings.sounds.lead.file || 'a.mp3');
+        setSelect('leadPattern', list, state.settings.sounds.lead.file || 'notification tone.mp3');
         setSelect('atPattern', list, state.settings.sounds.at.file || 'a.mp3');
         setSelect('over1Pattern', list, state.settings.sounds.over1.file || 'a.mp3');
         setSelect('over2Pattern', list, state.settings.sounds.over2.file || 'a.mp3');
@@ -1286,8 +1286,18 @@ function syncProfileLabel() {
     setupSoundPickers();
     renderSchedule();
     renderWeek();
-    updateClock(); updateStatus();
-    setInterval(()=>{ updateClock(); updateStatus(); }, 1000);
+    // Align updates to seconds
+    const startUpdates = () => {
+      updateClock(); updateStatus();
+      setInterval(() => { updateClock(); updateStatus(); }, 1000);
+    };
+    const now = new Date();
+    const ms = now.getMilliseconds();
+    if (ms === 0) {
+      startUpdates();
+    } else {
+      setTimeout(startUpdates, 1000 - ms);
+    }
     try { if ('serviceWorker' in navigator && location.protocol!=='file:') navigator.serviceWorker.register('./sw.js'); } catch {}
 
     // Show onboarding guidance if this is the first time the user has visited
