@@ -67,6 +67,7 @@ const VERSION='v0.5.2';
       state.settings.statusOrder = DEFAULT_ORDER.slice();
     }
     if (typeof state.settings.volume !== 'number') state.settings.volume = 50;
+    if (typeof state.settings.leadTime !== 'number') state.settings.leadTime = 5;
     // Synchronize profile options based on schedules stored in localStorage
     syncProfileOptions();
   }
