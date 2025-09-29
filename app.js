@@ -376,7 +376,7 @@ function syncProfileLabel() {
   function playStage(stage, eventType){
     if (!state.settings.enableSounds) return;
     if (state.settings.escalation && !/^(break|meal)$/i.test(eventType||'')) return;
-    const pick = k => (state.settings.sounds?.[k]?.file) || 'a.mp3';
+    const pick = k => (state.settings.sounds?.[k]?.file) || (k === 'lead' ? 'notification tone.mp3' : 'a.mp3');
     const file = ({lead:pick('lead'), at:pick('at'), over1:pick('over1'), over2:pick('over2')})[stage];
     if (!file || !window.Howl) return;
     try {
@@ -537,7 +537,7 @@ function syncProfileLabel() {
       }
       const diff = nextTime - now;
       const minsToNext = Math.floor(diff / 60000);
-      if (minsToNext <= state.settings.leadTime) {
+      if (minsToNext === state.settings.leadTime) {
         showLead = true;
       }
     }
