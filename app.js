@@ -752,8 +752,23 @@ function syncProfileLabel() {
     saveAll(); renderSchedule(); renderWeek(); updateStatus();
   }
   function deleteEvent(i){
-    if (state.selectedDay){ const p=prof(), w=getWeek(p); w[state.selectedDay].splice(i,1); setWeek(p,w); }
-    else { const p=prof(); (state.schedule[p]||[]).splice(i,1); }
+    const p = prof();
+    if (state.selectedDay){
+      const w = getWeek(p);
+      const dayList = w[state.selectedDay] || [];
+      const sortedList = dayList.slice().sort((a,b)=>a.time.localeCompare(b.time));
+      const ev = sortedList[i];
+      const originalIdx = dayList.indexOf(ev);
+      dayList.splice(originalIdx,1);
+      setWeek(p,w);
+    } else {
+      const dayList = state.schedule[p] || [];
+      const sortedList = dayList.slice().sort((a,b)=>a.time.localeCompare(b.time));
+      const ev = sortedList[i];
+      const originalIdx = dayList.indexOf(ev);
+      dayList.splice(originalIdx,1);
+      state.schedule[p] = dayList;
+    }
     saveAll(); renderSchedule(); renderWeek();
   }
 
@@ -776,6 +791,7 @@ function syncProfileLabel() {
       const day=cell.dataset.day; cell.innerHTML='';
       const list=(week[day]||[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
       list.forEach((ev,idx)=>{
+        const originalIdx = (week[day] || []).indexOf(ev);
         const div=document.createElement('div');
         div.className=`event-item ${typeClass(ev.type)}`;
         div.draggable=true;
@@ -795,14 +811,14 @@ function syncProfileLabel() {
             <button class="kill" type="button" title="Delete"><i class="fa-solid fa-xmark"></i></button>
           </div>`;
         div.querySelector('.kill').addEventListener('click',()=>{
-          (week[day]||[]).splice(idx,1); setWeek(p,week); renderWeek(); if(state.selectedDay===day) renderSchedule();
+          (week[day]||[]).splice(originalIdx,1); setWeek(p,week); renderWeek(); if(state.selectedDay===day) renderSchedule();
         });
         div.querySelector('.edit').addEventListener('click',()=>{
           // Use the unified edit modal for editing weekly events.  Pass
           // the day and index so the event can be updated correctly.
-          openEditModal(day, idx, ev);
+          openEditModal(day, originalIdx, ev);
         });
-        div.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',JSON.stringify({fromDay:day,index:idx}))});
+        div.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',JSON.stringify({fromDay:day,index:originalIdx}))});
         cell.appendChild(div);
       });
       cell.addEventListener('dragover',e=>e.preventDefault());
@@ -959,7 +975,7 @@ function syncProfileLabel() {
       });
     }
 
-    const setSlider=(id,valId,key)=>{ const el=$(id),out=$(valId); if(!el||!out) return; if(typeof state.settings[key]!=='number') state.settings[key]=parseInt(el.getAttribute('value')||'5',10); el.value=state.settings[key]; out.textContent=String(state.settings[key]); el.addEventListener('input',()=>{ state.settings[key]=parseInt(el.value,10); out.textContent=el.value; saveAll(); }); };
+    const setSlider=(id,valId,key)=>{ const el=$(id),out=$(valId); if(!el||!out) return; if(typeof state.settings[key]!=='number') state.settings[key]=parseInt(el.getAttribute('value')||'5',10); el.value=state.settings[key]; out.textContent=String(state.settings[key]); el.addEventListener('input',()=>{ state.settings[key]=parseInt(el.value,10); out.textContent=el.value; saveAll(); });
     setSlider('leadSlider','leadVal','leadTime'); setSlider('over1Slider','over1Val','firstWarn'); setSlider('over2Slider','over2Val','secondWarn');
 
     // Master volume slider: 0-100 (affects all alert and click sounds)
