@@ -2,7 +2,7 @@
 // Use a versioned cache name for the service worker.  Bump this when
 // updating cached files.  Paths below are relative so the app works from
 // subdirectories (e.g. /Test1/).
-const CACHE = 'csc-v0.5.2';
+const CACHE = 'csc-v0.5.3';
 const CORE = [
   './',
   'index.html', 'styles.css', 'app.js', 'sfx.js',

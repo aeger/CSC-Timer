@@ -1,5 +1,5 @@
-const VERSION='v0.5.2';
-/* CSC Adherence Timer app.js (v0.5.2) */
+const VERSION='v0.5.3';
+/* CSC Adherence Timer app.js (v0.5.3) */
 (() => {
   'use strict';
   if (window.__CSC_BOOTED__) return;
@@ -881,6 +881,8 @@ function syncProfileLabel() {
     setSelect('atPattern',files,s.sounds.at.file||'a.mp3');
     setSelect('over1Pattern',files,s.sounds.over1.file||'a.mp3');
     setSelect('over2Pattern',files,s.sounds.over2.file||'a.mp3');
+    const customSounds = Object.keys(s.customSounds || {});
+    setSelect('deleteSoundSelect', customSounds, '');
     const save=()=>{ try{ localStorage.setItem('settings', JSON.stringify(state.settings)); }catch{} };
     $('clickPattern')?.addEventListener('change',e=>{ s.clickPattern=e.target.value; save(); });
     $('leadPattern') ?.addEventListener('change',e=>{ s.sounds.lead.file=e.target.value; save(); });
@@ -906,11 +908,16 @@ function syncProfileLabel() {
       setSelect('atPattern',list,state.settings.sounds.at.file);
       setSelect('over1Pattern',list,state.settings.sounds.over1.file);
       setSelect('over2Pattern',list,state.settings.sounds.over2.file);
+      setSelect('deleteSoundSelect', Object.keys(state.settings.customSounds || {}), '');
       showToast('Uploaded. Select it from the dropdowns.','success');
     });
 
     $('deleteSoundBtn')?.addEventListener('click', async () => {
-      const selected = $('clickPattern').value;
+      const selected = $('deleteSoundSelect').value;
+      if (!selected) {
+        showToast('Please select a custom sound to delete', 'error');
+        return;
+      }
       if (state.settings.customSounds && state.settings.customSounds[selected]) {
         delete state.settings.customSounds[selected];
         saveAll();
@@ -920,6 +927,7 @@ function syncProfileLabel() {
         setSelect('atPattern', list, state.settings.sounds.at.file || 'a.mp3');
         setSelect('over1Pattern', list, state.settings.sounds.over1.file || 'a.mp3');
         setSelect('over2Pattern', list, state.settings.sounds.over2.file || 'a.mp3');
+        setSelect('deleteSoundSelect', Object.keys(state.settings.customSounds || {}), '');
         showToast('Custom sound deleted', 'success');
       } else {
         showToast('Selected sound is not a custom upload', 'error');
@@ -1321,17 +1329,17 @@ function syncProfileLabel() {
   document.readyState==='loading' ? document.addEventListener('DOMContentLoaded', init, {once:true}) : init();
 })();
 
-// v0.5.2: populate version label
+// v0.5.3: populate version label
 document.addEventListener('DOMContentLoaded', ()=>{
   try{ const el=document.getElementById('app-version'); if (el) el.textContent = (typeof VERSION!=='undefined'?VERSION:''); }catch{}
 });
 
-// v0.5.2: ensure audio context resumes on first interaction
+// v0.5.3: ensure audio context resumes on first interaction
 (function(){function u(){try{if(window.Howler&&Howler.ctx&&Howler.ctx.state==='suspended')Howler.ctx.resume()}catch{};
 window.removeEventListener('click',u);window.removeEventListener('keydown',u);window.removeEventListener('touchstart',u);} 
 window.addEventListener('click',u,{once:true});window.addEventListener('keydown',u,{once:true});window.addEventListener('touchstart',u,{once:true});})();
 
-// v0.5.2 stage→CSS sync
+// v0.5.3 stage→CSS sync
 (function(){
   var __lastStageKey = '';
   function applyStageClass(stage) {
