@@ -975,7 +975,7 @@ function syncProfileLabel() {
       });
     }
 
-    const setSlider=(id,valId,key)=>{ const el=$(id),out=$(valId); if(!el||!out) return; if(typeof state.settings[key]!=='number') state.settings[key]=parseInt(el.getAttribute('value')||'5',10); el.value=state.settings[key]; out.textContent=String(state.settings[key]); el.addEventListener('input',()=>{ state.settings[key]=parseInt(el.value,10); out.textContent=el.value; saveAll(); });
+    const setSlider=(id,valId,key)=>{ const el=$(id),out=$(valId); if(!el||!out) return; if(typeof state.settings[key]!=='number') state.settings[key]=parseInt(el.getAttribute('value')||'5',10); el.value=state.settings[key]; out.textContent=String(state.settings[key]); el.addEventListener('input',()=>{ state.settings[key]=parseInt(el.value,10); out.textContent=el.value; saveAll(); }); };
     setSlider('leadSlider','leadVal','leadTime'); setSlider('over1Slider','over1Val','firstWarn'); setSlider('over2Slider','over2Val','secondWarn');
 
     // Master volume slider: 0-100 (affects all alert and click sounds)
