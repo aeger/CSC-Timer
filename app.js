@@ -45,7 +45,8 @@ const VERSION='v0.5.2';
     lastEventKey: null,
     // Holds the current alert (lead/at/over) Howl so it can be stopped when the user acknowledges the expected status.
     alertSound: null,
-    deferredPrompt: null
+    deferredPrompt: null,
+    lastShowLead: false
   };
 
   const prof = () => ($('profileSwitcher')?.value || 'default');
@@ -516,24 +517,27 @@ function syncProfileLabel() {
           }
           const diff = nextTime - now;
           if (diff <= leadMs) {
-            stage = 'lead';
-            expectedType = nxt.type;
+            // stage = 'lead'; removed
+            // expectedType = nxt.type; moved below
           }
+        }
+        if (showLead) {
+          expectedType = nxt.type;
         }
         es && (es.textContent = `Current Expected Status: ${expectedType}`);
       }
     }
 
     // Check for lead warning to next event, even during current event
+    let showLead = false;
     if (nxt && !notScheduled) {
       let nextTime = parseHM(nxt.time);
       if (nextTime < now) {
         nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000);
       }
       const diff = nextTime - now;
-      if (diff <= leadMs && (!stage || stage === 'at')) {
-        stage = 'lead';
-        expectedType = nxt.type;
+      if (diff <= leadMs) {
+        showLead = true;
       }
     }
 
@@ -562,7 +566,7 @@ function syncProfileLabel() {
         key = 'overdue';
       } else {
         const hasExp = expectedType && expectedType.toLowerCase() !== 'none' && !notScheduled;
-        if (stage === 'lead') { key = 'nearing'; } else if (hasExp && !ackOK) { key = 'overdue'; } else { key = 'upcoming'; }
+        if (showLead || stage === 'lead') { key = 'nearing'; } else if (hasExp && !ackOK) { key = 'overdue'; } else { key = 'upcoming'; }
       }
       tc.classList.remove('state-upcoming', 'state-nearing', 'state-overdue');
       tc.classList.add('state-' + key);
@@ -688,11 +692,11 @@ function syncProfileLabel() {
     }
     // Handle stage change and play notifications/sounds if not acknowledged
     if (stage && stage !== 'off' && stage !== state.lastStage) {
-      // v0.5.1: always play configured lead sound on entering lead
+      // v0.5.2: always play configured lead sound on entering lead
       if (stage === 'lead') {
         playStage(stage, expectedType);
         try {
-          notifyStage(stage, nxt ? nxt.type : expectedType, nxt ? nxt.time : (cur ? cur.time : null));
+          notifyStage(stage, expectedType, cur ? cur.time : nxt?.time);
         } catch {}
       } else if (!ackOK) {
         playStage(stage, expectedType);
@@ -701,6 +705,17 @@ function syncProfileLabel() {
         } catch {}
       }
       state.lastStage = stage;
+    }
+
+    // Handle lead warning sound and notification
+    if (showLead && !state.lastShowLead) {
+      playStage('lead', nxt ? nxt.type : expectedType);
+      try {
+        notifyStage('lead', nxt ? nxt.type : expectedType, nxt ? nxt.time : (cur ? cur.time : null));
+      } catch {}
+      state.lastShowLead = true;
+    } else if (!showLead) {
+      state.lastShowLead = false;
     }
   }
 
