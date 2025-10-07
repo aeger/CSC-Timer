@@ -558,7 +558,7 @@ function syncProfileLabel() {
       }
       const diff = nextTime - now;
       const minsToNext = Math.floor(diff / 60000);
-      if (minsToNext <= state.settings.leadTime) {
+      if (minsToNext === state.settings.leadTime) {
         showLead = true;
       }
     }

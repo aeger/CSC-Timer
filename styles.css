@@ -255,3 +255,6 @@ button.ghost{background:transparent;border-color:#334155}
 .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--fg); }
 .modal-body h3 { margin-top: 16px; margin-bottom: 8px; }
 .modal-body ul { margin: 0; padding-left: 20px; }
+
+/* Toast notifications */
+.toast-container{position:fixed;top:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:0.5rem;z-index:200;}
