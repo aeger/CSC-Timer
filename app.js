@@ -46,7 +46,8 @@ const VERSION='v0.5.3';
     // Holds the current alert (lead/at/over) Howl so it can be stopped when the user acknowledges the expected status.
     alertSound: null,
     deferredPrompt: null,
-    lastShowLead: false
+    lastShowLead: false,
+    currentDate: null
   };
 
   const prof = () => ($('profileSwitcher')?.value || 'default');
@@ -67,6 +68,7 @@ const VERSION='v0.5.3';
       state.settings.statusOrder = DEFAULT_ORDER.slice();
     }
     if (typeof state.settings.volume !== 'number') state.settings.volume = 50;
+    if (typeof state.settings.countdownDelay !== 'number') state.settings.countdownDelay = 15;
     // Synchronize profile options based on schedules stored in localStorage
     syncProfileOptions();
   }
@@ -453,6 +455,14 @@ function syncProfileLabel() {
   }
 
   function updateStatus(){
+    // Check for date change and update selected day
+    if (!state.currentDate) state.currentDate = new Date().toDateString();
+    const nowDate = new Date().toDateString();
+    if (nowDate !== state.currentDate) {
+      state.currentDate = nowDate;
+      state.selectedDay = todayShort();
+    }
+
     const cd = $('countdown'), es = $('expectedStatus');
     const list = activeList().slice().sort((a,b) => a.time.localeCompare(b.time));
     const nxt = nextEvent();
@@ -473,6 +483,7 @@ function syncProfileLabel() {
     const leadMs  = state.settings.leadTime   * 60000;
     const over1Ms = state.settings.firstWarn  * 60000;
     const over2Ms = state.settings.secondWarn * 60000;
+    const countdownDelayMs = state.settings.countdownDelay * 60000;
 
     // Determine expected type and stage relative to the current event (if any) or
     // the upcoming event if no current event exists.  `stage` may be null when
@@ -488,16 +499,21 @@ function syncProfileLabel() {
       cd && (cd.textContent = '🕒 Countdown to next event: --');
       es && (es.textContent = 'You are not scheduled to work at this time');
     } else {
-      // There is at least one event.  Show countdown to the next event always.
+      // There is at least one event.  Show countdown to the next event if within delay time.
       if (nxt) {
         let nxtDate = parseHM(nxt.time);
         if (nxtDate < now) {
           nxtDate = new Date(nxtDate.getTime() + 24 * 60 * 60 * 1000);
         }
         const diffAbs = Math.max(0, nxtDate - now);
-        const mins = Math.floor(diffAbs / 60000);
-        const secs = Math.floor((diffAbs % 60000) / 1000);
-        cd && (cd.textContent = `🕒 Countdown to next event: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} (${nxt.type})`);
+        if (diffAbs <= countdownDelayMs) {
+          const mins = Math.floor(diffAbs / 60000);
+          const secs = Math.floor((diffAbs % 60000) / 1000);
+          cd && (cd.textContent = `🕒 Countdown to next event: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} (${nxt.type})`);
+        } else {
+          cd && (cd.textContent = '🕒 Countdown to next event: --');
+          es && (es.textContent = 'You are not scheduled to work at this time');
+        }
       } else {
         cd && (cd.textContent = '🕒 Countdown to next event: --');
       }
@@ -990,7 +1006,7 @@ function syncProfileLabel() {
     }
 
     const setSlider=(id,valId,key)=>{ const el=$(id),out=$(valId); if(!el||!out) return; if(typeof state.settings[key]!=='number') state.settings[key]=parseInt(el.getAttribute('value')||'5',10); el.value=state.settings[key]; out.textContent=String(state.settings[key]); el.addEventListener('input',()=>{ state.settings[key]=parseInt(el.value,10); out.textContent=el.value; saveAll(); }); };
-    setSlider('leadSlider','leadVal','leadTime'); setSlider('over1Slider','over1Val','firstWarn'); setSlider('over2Slider','over2Val','secondWarn');
+    setSlider('leadSlider','leadVal','leadTime'); setSlider('countdownDelaySlider','countdownDelayVal','countdownDelay'); setSlider('over1Slider','over1Val','firstWarn'); setSlider('over2Slider','over2Val','secondWarn');
 
     // Master volume slider: 0-100 (affects all alert and click sounds)
     setSlider('volumeSlider','volumeVal','volume');
