@@ -223,8 +223,8 @@ const VERSION='v0.5.4';
     div.className = `toast ${type}`;
     div.textContent = msg;
     cont.appendChild(div);
-    // Remove after 4 seconds
-    setTimeout(()=>{ div.remove(); }, 4000);
+    // Remove after 7 seconds
+    setTimeout(()=>{ div.remove(); }, 7000);
   }
 
   /**
@@ -339,7 +339,10 @@ function syncProfileLabel() {
         if (timeInput) timeInput.value = ev.time;
         // Show inline editor and hide modal if open
         const inline = $('inlineEditor');
-        if (inline) inline.hidden = false;
+        if (inline) {
+          inline.hidden = false;
+          inline.scrollIntoView({ behavior: 'smooth' });
+        }
         const modal = $('editModal');
         if (modal) modal.hidden = true;
       }
@@ -512,7 +515,7 @@ function syncProfileLabel() {
           nxtDate = new Date(nxtDate.getTime() + 24 * 60 * 60 * 1000);
         }
         const diffAbs = Math.max(0, nxtDate - now);
-        if (diffAbs <= countdownDelayMs) {
+        if (diffAbs <= countdownDelayMs || nxt.type.toLowerCase() === 'shift end') {
           const mins = Math.floor(diffAbs / 60000);
           const secs = Math.floor((diffAbs % 60000) / 1000);
           cd && (cd.textContent = `🕒 Countdown to next event: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} (${nxt.type})`);
