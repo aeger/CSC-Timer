@@ -1,5 +1,5 @@
-const VERSION='v0.5.3';
-/* CSC Adherence Timer app.js (v0.5.3) */
+const VERSION='v0.5.4';
+/* CSC Adherence Timer app.js (v0.5.4) */
 (() => {
   'use strict';
   if (window.__CSC_BOOTED__) return;
@@ -1075,6 +1075,17 @@ function syncProfileLabel() {
     $('helpBtn')?.addEventListener('click', showHelp);
     $('helpClose')?.addEventListener('click', closeHelp);
 
+    // update notes handlers
+    $('updateNotesBtn')?.addEventListener('click', () => {
+      const modal = $('updateNotesModal');
+      if (modal) modal.hidden = false;
+    });
+    $('updateNotesModal')?.querySelector('.modal-close')?.addEventListener('click', () => {
+      const modal = $('updateNotesModal');
+      if (modal) modal.hidden = true;
+    });
+
+
     // Theme selection dropdown: update theme and persist
     const themeSel = $('themeSelect');
     if (themeSel) {
@@ -1351,17 +1362,17 @@ function syncProfileLabel() {
   document.readyState==='loading' ? document.addEventListener('DOMContentLoaded', init, {once:true}) : init();
 })();
 
-// v0.5.3: populate version label
+// v0.5.4: populate version label
 document.addEventListener('DOMContentLoaded', ()=>{
   try{ const el=document.getElementById('app-version'); if (el) el.textContent = (typeof VERSION!=='undefined'?VERSION:''); }catch{}
 });
 
-// v0.5.3: ensure audio context resumes on first interaction
+// v0.5.4: ensure audio context resumes on first interaction
 (function(){function u(){try{if(window.Howler&&Howler.ctx&&Howler.ctx.state==='suspended')Howler.ctx.resume()}catch{};
 window.removeEventListener('click',u);window.removeEventListener('keydown',u);window.removeEventListener('touchstart',u);} 
 window.addEventListener('click',u,{once:true});window.addEventListener('keydown',u,{once:true});window.addEventListener('touchstart',u,{once:true});})();
 
-// v0.5.3 stage→CSS sync
+// v0.5.4 stage→CSS sync
 (function(){
   var __lastStageKey = '';
   function applyStageClass(stage) {

@@ -241,6 +241,10 @@
               <label class="label" for="helpBtn">Help &amp; Tips</label>
               <div class="control"><button id="helpBtn" type="button" title="Show help and tips">Help</button></div>
             </div>
+            <div class="form-row">
+              <label class="label" for="updateNotesBtn">Update Notes</label>
+              <div class="control"><button id="updateNotesBtn" type="button" title="View recent update notes and changes">Update Notes</button></div>
+            </div>
           </div>
         </div>
 
@@ -336,6 +340,36 @@
       <div class="modal-actions">
         <button id="editModalSave" class="primary" type="button">Save</button>
         <button id="editModalCancel" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Update Notes Modal -->
+  <div id="updateNotesModal" class="modal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Update Notes</h2>
+        <button class="modal-close" type="button" title="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h3>v0.5.4</h3>
+        <ul>
+          <li>Added Update Notes button in settings to view recent changes</li>
+          <li>Added tooltips to settings for better usability</li>
+        </ul>
+        <h3>v0.5.3</h3>
+        <ul>
+          <li>Automatic day switching when page left open past midnight</li>
+          <li>Delayed countdown display until configured minutes before first event</li>
+          <li>Added countdown delay setting (default 15 minutes)</li>
+        </ul>
+        <h3>v0.5.2</h3>
+        <ul>
+          <li>Fixed lead time alert timing and sound selection</li>
+          <li>Added dedicated dropdown for deleting custom MP3 sounds</li>
+          <li>Improved event editing logic for ad-hoc schedules</li>
+          <li>Updated default lead sound to 'notification tone.mp3'</li>
+        </ul>
       </div>
     </div>
   </div>
