@@ -1,5 +1,5 @@
-const VERSION='v0.5.2';
-/* CSC Adherence Timer app.js (v0.5.2) */
+const VERSION='v0.5.4';
+/* CSC Adherence Timer app.js (v0.5.4) */
 (() => {
   'use strict';
   if (window.__CSC_BOOTED__) return;
@@ -45,7 +45,9 @@ const VERSION='v0.5.2';
     lastEventKey: null,
     // Holds the current alert (lead/at/over) Howl so it can be stopped when the user acknowledges the expected status.
     alertSound: null,
-    deferredPrompt: null
+    deferredPrompt: null,
+    lastShowLead: false,
+    currentDate: null
   };
 
   const prof = () => ($('profileSwitcher')?.value || 'default');
@@ -66,6 +68,7 @@ const VERSION='v0.5.2';
       state.settings.statusOrder = DEFAULT_ORDER.slice();
     }
     if (typeof state.settings.volume !== 'number') state.settings.volume = 50;
+    if (typeof state.settings.countdownDelay !== 'number') state.settings.countdownDelay = 15;
     // Synchronize profile options based on schedules stored in localStorage
     syncProfileOptions();
   }
@@ -319,7 +322,11 @@ function syncProfileLabel() {
       const idx = +b.dataset.index;
       const ev = list[idx];
       if (!ev) return;
-      state.inlineEditing = idx;
+      // Find the original index in the unsorted activeList
+      const originalList = activeList();
+      const originalIdx = originalList.indexOf(ev);
+      if (originalIdx === -1) return; // shouldn't happen
+      state.inlineEditing = originalIdx;
       // Populate inline editor fields
       const typeSel = $('editType');
       const timeInput = $('editTime');
@@ -339,7 +346,8 @@ function syncProfileLabel() {
         inlineEl.hidden = true;
       } else {
         inlineEl.hidden = false;
-        const ev = list[state.inlineEditing];
+        const originalList = activeList();
+        const ev = originalList[state.inlineEditing];
         if (ev) {
           const typeSel = $('editType');
           const timeInput = $('editTime');
@@ -375,7 +383,7 @@ function syncProfileLabel() {
   function playStage(stage, eventType){
     if (!state.settings.enableSounds) return;
     if (state.settings.escalation && !/^(break|meal)$/i.test(eventType||'')) return;
-    const pick = k => (state.settings.sounds?.[k]?.file) || 'a.mp3';
+    const pick = k => (state.settings.sounds?.[k]?.file) || (k === 'lead' ? 'notification tone.mp3' : 'a.mp3');
     const file = ({lead:pick('lead'), at:pick('at'), over1:pick('over1'), over2:pick('over2')})[stage];
     if (!file || !window.Howl) return;
     try {
@@ -447,6 +455,14 @@ function syncProfileLabel() {
   }
 
   function updateStatus(){
+    // Check for date change and update selected day
+    if (!state.currentDate) state.currentDate = new Date().toDateString();
+    const nowDate = new Date().toDateString();
+    if (nowDate !== state.currentDate) {
+      state.currentDate = nowDate;
+      state.selectedDay = todayShort();
+    }
+
     const cd = $('countdown'), es = $('expectedStatus');
     const list = activeList().slice().sort((a,b) => a.time.localeCompare(b.time));
     const nxt = nextEvent();
@@ -467,6 +483,7 @@ function syncProfileLabel() {
     const leadMs  = state.settings.leadTime   * 60000;
     const over1Ms = state.settings.firstWarn  * 60000;
     const over2Ms = state.settings.secondWarn * 60000;
+    const countdownDelayMs = state.settings.countdownDelay * 60000;
 
     // Determine expected type and stage relative to the current event (if any) or
     // the upcoming event if no current event exists.  `stage` may be null when
@@ -482,16 +499,21 @@ function syncProfileLabel() {
       cd && (cd.textContent = '🕒 Countdown to next event: --');
       es && (es.textContent = 'You are not scheduled to work at this time');
     } else {
-      // There is at least one event.  Show countdown to the next event always.
+      // There is at least one event.  Show countdown to the next event if within delay time.
       if (nxt) {
         let nxtDate = parseHM(nxt.time);
         if (nxtDate < now) {
           nxtDate = new Date(nxtDate.getTime() + 24 * 60 * 60 * 1000);
         }
         const diffAbs = Math.max(0, nxtDate - now);
-        const mins = Math.floor(diffAbs / 60000);
-        const secs = Math.floor((diffAbs % 60000) / 1000);
-        cd && (cd.textContent = `🕒 Countdown to next event: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} (${nxt.type})`);
+        if (diffAbs <= countdownDelayMs) {
+          const mins = Math.floor(diffAbs / 60000);
+          const secs = Math.floor((diffAbs % 60000) / 1000);
+          cd && (cd.textContent = `🕒 Countdown to next event: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} (${nxt.type})`);
+        } else {
+          cd && (cd.textContent = '🕒 Countdown to next event: --');
+          es && (es.textContent = 'You are not scheduled to work at this time');
+        }
       } else {
         cd && (cd.textContent = '🕒 Countdown to next event: --');
       }
@@ -515,22 +537,29 @@ function syncProfileLabel() {
             nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000); // Add one day
           }
           const diff = nextTime - now;
-          if (diff < leadMs) stage = 'lead';
+          if (diff <= leadMs) {
+            // stage = 'lead'; removed
+            // expectedType = nxt.type; moved below
+          }
+        }
+        if (showLead) {
+          expectedType = nxt.type;
         }
         es && (es.textContent = `Current Expected Status: ${expectedType}`);
       }
     }
 
     // Check for lead warning to next event, even during current event
+    let showLead = false;
     if (nxt && !notScheduled) {
       let nextTime = parseHM(nxt.time);
       if (nextTime < now) {
         nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000);
       }
       const diff = nextTime - now;
-      if (diff < leadMs && (!stage || stage === 'at')) {
-        stage = 'lead';
-        // For lead warning during current event, expected type remains current
+      const minsToNext = Math.floor(diff / 60000);
+      if (minsToNext <= state.settings.leadTime) {
+        showLead = true;
       }
     }
 
@@ -559,7 +588,7 @@ function syncProfileLabel() {
         key = 'overdue';
       } else {
         const hasExp = expectedType && expectedType.toLowerCase() !== 'none' && !notScheduled;
-        if (stage === 'lead') { key = 'nearing'; } else if (hasExp && !ackOK) { key = 'overdue'; } else { key = 'upcoming'; }
+        if (showLead || stage === 'lead') { key = 'nearing'; } else if (hasExp && !ackOK) { key = 'overdue'; } else { key = 'upcoming'; }
       }
       tc.classList.remove('state-upcoming', 'state-nearing', 'state-overdue');
       tc.classList.add('state-' + key);
@@ -685,11 +714,11 @@ function syncProfileLabel() {
     }
     // Handle stage change and play notifications/sounds if not acknowledged
     if (stage && stage !== 'off' && stage !== state.lastStage) {
-      // v0.5.1: always play configured lead sound on entering lead
+      // v0.5.2: always play configured lead sound on entering lead
       if (stage === 'lead') {
         playStage(stage, expectedType);
         try {
-          notifyStage(stage, nxt ? nxt.type : expectedType, nxt ? nxt.time : (cur ? cur.time : null));
+          notifyStage(stage, expectedType, cur ? cur.time : nxt?.time);
         } catch {}
       } else if (!ackOK) {
         playStage(stage, expectedType);
@@ -698,6 +727,17 @@ function syncProfileLabel() {
         } catch {}
       }
       state.lastStage = stage;
+    }
+
+    // Handle lead warning sound and notification
+    if (showLead && !state.lastShowLead) {
+      playStage('lead', nxt ? nxt.type : expectedType);
+      try {
+        notifyStage('lead', nxt ? nxt.type : expectedType, nxt ? nxt.time : (cur ? cur.time : null));
+      } catch {}
+      state.lastShowLead = true;
+    } else if (!showLead) {
+      state.lastShowLead = false;
     }
   }
 
@@ -734,8 +774,23 @@ function syncProfileLabel() {
     saveAll(); renderSchedule(); renderWeek(); updateStatus();
   }
   function deleteEvent(i){
-    if (state.selectedDay){ const p=prof(), w=getWeek(p); w[state.selectedDay].splice(i,1); setWeek(p,w); }
-    else { const p=prof(); (state.schedule[p]||[]).splice(i,1); }
+    const p = prof();
+    if (state.selectedDay){
+      const w = getWeek(p);
+      const dayList = w[state.selectedDay] || [];
+      const sortedList = dayList.slice().sort((a,b)=>a.time.localeCompare(b.time));
+      const ev = sortedList[i];
+      const originalIdx = dayList.indexOf(ev);
+      dayList.splice(originalIdx,1);
+      setWeek(p,w);
+    } else {
+      const dayList = state.schedule[p] || [];
+      const sortedList = dayList.slice().sort((a,b)=>a.time.localeCompare(b.time));
+      const ev = sortedList[i];
+      const originalIdx = dayList.indexOf(ev);
+      dayList.splice(originalIdx,1);
+      state.schedule[p] = dayList;
+    }
     saveAll(); renderSchedule(); renderWeek();
   }
 
@@ -758,6 +813,7 @@ function syncProfileLabel() {
       const day=cell.dataset.day; cell.innerHTML='';
       const list=(week[day]||[]).slice().sort((a,b)=>a.time.localeCompare(b.time));
       list.forEach((ev,idx)=>{
+        const originalIdx = (week[day] || []).indexOf(ev);
         const div=document.createElement('div');
         div.className=`event-item ${typeClass(ev.type)}`;
         div.draggable=true;
@@ -777,14 +833,14 @@ function syncProfileLabel() {
             <button class="kill" type="button" title="Delete"><i class="fa-solid fa-xmark"></i></button>
           </div>`;
         div.querySelector('.kill').addEventListener('click',()=>{
-          (week[day]||[]).splice(idx,1); setWeek(p,week); renderWeek(); if(state.selectedDay===day) renderSchedule();
+          (week[day]||[]).splice(originalIdx,1); setWeek(p,week); renderWeek(); if(state.selectedDay===day) renderSchedule();
         });
         div.querySelector('.edit').addEventListener('click',()=>{
           // Use the unified edit modal for editing weekly events.  Pass
           // the day and index so the event can be updated correctly.
-          openEditModal(day, idx, ev);
+          openEditModal(day, originalIdx, ev);
         });
-        div.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',JSON.stringify({fromDay:day,index:idx}))});
+        div.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',JSON.stringify({fromDay:day,index:originalIdx}))});
         cell.appendChild(div);
       });
       cell.addEventListener('dragover',e=>e.preventDefault());
@@ -843,10 +899,12 @@ function syncProfileLabel() {
     const files=await listSoundFiles();
     const s=state.settings; s.sounds=s.sounds||{lead:{},at:{},over1:{},over2:{}};
     setSelect('clickPattern',files,s.clickPattern||'click.mp3');
-    setSelect('leadPattern',files,s.sounds.lead.file||'a.mp3');
+    setSelect('leadPattern',files,s.sounds.lead.file||'notification tone.mp3');
     setSelect('atPattern',files,s.sounds.at.file||'a.mp3');
     setSelect('over1Pattern',files,s.sounds.over1.file||'a.mp3');
     setSelect('over2Pattern',files,s.sounds.over2.file||'a.mp3');
+    const customSounds = Object.keys(s.customSounds || {});
+    setSelect('deleteSoundSelect', customSounds, '');
     const save=()=>{ try{ localStorage.setItem('settings', JSON.stringify(state.settings)); }catch{} };
     $('clickPattern')?.addEventListener('change',e=>{ s.clickPattern=e.target.value; save(); });
     $('leadPattern') ?.addEventListener('change',e=>{ s.sounds.lead.file=e.target.value; save(); });
@@ -872,7 +930,30 @@ function syncProfileLabel() {
       setSelect('atPattern',list,state.settings.sounds.at.file);
       setSelect('over1Pattern',list,state.settings.sounds.over1.file);
       setSelect('over2Pattern',list,state.settings.sounds.over2.file);
+      setSelect('deleteSoundSelect', Object.keys(state.settings.customSounds || {}), '');
       showToast('Uploaded. Select it from the dropdowns.','success');
+    });
+
+    $('deleteSoundBtn')?.addEventListener('click', async () => {
+      const selected = $('deleteSoundSelect').value;
+      if (!selected) {
+        showToast('Please select a custom sound to delete', 'error');
+        return;
+      }
+      if (state.settings.customSounds && state.settings.customSounds[selected]) {
+        delete state.settings.customSounds[selected];
+        saveAll();
+        const list = await listSoundFiles();
+        setSelect('clickPattern', list, state.settings.clickPattern || 'click.mp3');
+        setSelect('leadPattern', list, state.settings.sounds.lead.file || 'notification tone.mp3');
+        setSelect('atPattern', list, state.settings.sounds.at.file || 'a.mp3');
+        setSelect('over1Pattern', list, state.settings.sounds.over1.file || 'a.mp3');
+        setSelect('over2Pattern', list, state.settings.sounds.over2.file || 'a.mp3');
+        setSelect('deleteSoundSelect', Object.keys(state.settings.customSounds || {}), '');
+        showToast('Custom sound deleted', 'success');
+      } else {
+        showToast('Selected sound is not a custom upload', 'error');
+      }
     });
   }
 
@@ -924,8 +1005,8 @@ function syncProfileLabel() {
       });
     }
 
-    const setSlider=(id,valId,key)=>{ const el=$(id),out=$(valId); if(!el||!out) return; el.value=state.settings[key]; out.textContent=String(state.settings[key]); el.addEventListener('input',()=>{ state.settings[key]=parseInt(el.value,10); out.textContent=el.value; saveAll(); }); };
-    setSlider('leadSlider','leadVal','leadTime'); setSlider('over1Slider','over1Val','firstWarn'); setSlider('over2Slider','over2Val','secondWarn');
+    const setSlider=(id,valId,key)=>{ const el=$(id),out=$(valId); if(!el||!out) return; if(typeof state.settings[key]!=='number') state.settings[key]=parseInt(el.getAttribute('value')||'5',10); el.value=state.settings[key]; out.textContent=String(state.settings[key]); el.addEventListener('input',()=>{ state.settings[key]=parseInt(el.value,10); out.textContent=el.value; saveAll(); }); };
+    setSlider('leadSlider','leadVal','leadTime'); setSlider('countdownDelaySlider','countdownDelayVal','countdownDelay'); setSlider('over1Slider','over1Val','firstWarn'); setSlider('over2Slider','over2Val','secondWarn');
 
     // Master volume slider: 0-100 (affects all alert and click sounds)
     setSlider('volumeSlider','volumeVal','volume');
@@ -993,6 +1074,17 @@ function syncProfileLabel() {
     // help handlers
     $('helpBtn')?.addEventListener('click', showHelp);
     $('helpClose')?.addEventListener('click', closeHelp);
+
+    // update notes handlers
+    $('updateNotesBtn')?.addEventListener('click', () => {
+      const modal = $('updateNotesModal');
+      if (modal) modal.hidden = false;
+    });
+    $('updateNotesModal')?.querySelector('.modal-close')?.addEventListener('click', () => {
+      const modal = $('updateNotesModal');
+      if (modal) modal.hidden = true;
+    });
+
 
     // Theme selection dropdown: update theme and persist
     const themeSel = $('themeSelect');
@@ -1250,8 +1342,18 @@ function syncProfileLabel() {
     setupSoundPickers();
     renderSchedule();
     renderWeek();
-    updateClock(); updateStatus();
-    setInterval(()=>{ updateClock(); updateStatus(); }, 1000);
+    // Align updates to seconds
+    const startUpdates = () => {
+      updateClock(); updateStatus();
+      setInterval(() => { updateClock(); updateStatus(); }, 1000);
+    };
+    const now = new Date();
+    const ms = now.getMilliseconds();
+    if (ms === 0) {
+      startUpdates();
+    } else {
+      setTimeout(startUpdates, 1000 - ms);
+    }
     try { if ('serviceWorker' in navigator && location.protocol!=='file:') navigator.serviceWorker.register('./sw.js'); } catch {}
 
     // Show onboarding guidance if this is the first time the user has visited
@@ -1260,17 +1362,17 @@ function syncProfileLabel() {
   document.readyState==='loading' ? document.addEventListener('DOMContentLoaded', init, {once:true}) : init();
 })();
 
-// v0.5.2: populate version label
+// v0.5.4: populate version label
 document.addEventListener('DOMContentLoaded', ()=>{
   try{ const el=document.getElementById('app-version'); if (el) el.textContent = (typeof VERSION!=='undefined'?VERSION:''); }catch{}
 });
 
-// v0.5.2: ensure audio context resumes on first interaction
+// v0.5.4: ensure audio context resumes on first interaction
 (function(){function u(){try{if(window.Howler&&Howler.ctx&&Howler.ctx.state==='suspended')Howler.ctx.resume()}catch{};
 window.removeEventListener('click',u);window.removeEventListener('keydown',u);window.removeEventListener('touchstart',u);} 
 window.addEventListener('click',u,{once:true});window.addEventListener('keydown',u,{once:true});window.addEventListener('touchstart',u,{once:true});})();
 
-// v0.5.2 stage→CSS sync
+// v0.5.4 stage→CSS sync
 (function(){
   var __lastStageKey = '';
   function applyStageClass(stage) {

@@ -7,6 +7,7 @@
 
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="favicon.ico" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="stylesheet" href="styles.css" />
 
   <!-- Icons + audio -->
@@ -23,7 +24,7 @@
     </div>
     <div class="controls ml-auto" role="group" aria-label="App controls">
       <label for="profileSwitcher">Profile</label>
-      <select id="profileSwitcher" title="Select a profile">
+      <select id="profileSwitcher" title="Switch between different schedule profiles">
         <option value="default">default</option>
       </select>
       <button id="toggleSettings" type="button" title="Show or hide settings">Settings</button>
@@ -118,7 +119,7 @@
           <div class="form-grid">
             <div class="form-row">
               <label class="label" for="timeFormat">Time format</label>
-              <div class="control"><select id="timeFormat"><option value="12">12h</option><option value="24">24h</option></select></div>
+              <div class="control"><select id="timeFormat" title="Choose 12-hour or 24-hour time display"><option value="12">12h</option><option value="24">24h</option></select></div>
             </div>
             <div class="form-row">
               <label class="label" for="timeZone">Time zone</label>
@@ -132,7 +133,7 @@
             <!-- Theme selection: allow switching between dark and light modes -->
             <div class="form-row">
               <label class="label" for="themeSelect">Theme</label>
-              <div class="control"><select id="themeSelect" title="Select a color theme">
+              <div class="control"><select id="themeSelect" title="Select light or dark theme">
                 <option value="dark">Dark</option>
                 <option value="light">Light</option>
               </select></div>
@@ -143,15 +144,19 @@
           <div class="form-grid">
             <div class="form-row">
               <label class="label" for="leadSlider">Lead warning (min)</label>
-              <div class="control slider"><input id="leadSlider" type="range" min="1" max="30" value="5" /> <span id="leadVal">5</span></div>
+              <div class="control slider"><input id="leadSlider" type="range" min="1" max="30" value="5" title="Minutes before an event to show yellow warning and play lead sound" /> <span id="leadVal">5</span></div>
+            </div>
+            <div class="form-row">
+              <label class="label" for="countdownDelaySlider">Countdown delay (min)</label>
+              <div class="control slider"><input id="countdownDelaySlider" type="range" min="0" max="60" value="15" title="Minutes before first event to start showing countdown instead of 'not scheduled'" /> <span id="countdownDelayVal">15</span></div>
             </div>
             <div class="form-row">
               <label class="label" for="over1Slider">First overdue (min)</label>
-              <div class="control slider"><input id="over1Slider" type="range" min="1" max="30" value="2" /> <span id="over1Val">2</span></div>
+              <div class="control slider"><input id="over1Slider" type="range" min="1" max="30" value="2" title="Minutes after event start to mark as first overdue (red)" /> <span id="over1Val">2</span></div>
             </div>
             <div class="form-row">
               <label class="label" for="over2Slider">Second overdue (min)</label>
-              <div class="control slider"><input id="over2Slider" type="range" min="1" max="30" value="5" /> <span id="over2Val">5</span></div>
+              <div class="control slider"><input id="over2Slider" type="range" min="1" max="30" value="5" title="Minutes after event start to mark as second overdue (red)" /> <span id="over2Val">5</span></div>
             </div>
           </div>
 
@@ -159,44 +164,46 @@
           <div class="form-grid">
             <div class="form-row">
               <label class="label" for="enableSounds">Enable alert sounds</label>
-              <div class="control"><input id="enableSounds" type="checkbox" checked /></div>
+              <div class="control"><input id="enableSounds" type="checkbox" checked title="Play alert sounds for lead, at-event, and overdue" /></div>
             </div>
             <div class="form-row">
               <label class="label" for="enableClicks">Enable click sounds</label>
-              <div class="control"><input id="enableClicks" type="checkbox" checked /></div>
+              <div class="control"><input id="enableClicks" type="checkbox" checked title="Play click sound when interacting with buttons" /></div>
             </div>
             <div class="form-row">
               <label class="label" for="volumeSlider">Volume</label>
-              <div class="control slider"><input id="volumeSlider" type="range" min="0" max="100" value="50" /> <span id="volumeVal">50</span></div>
+              <div class="control slider"><input id="volumeSlider" type="range" min="0" max="100" value="50" title="Volume level for sounds (0-100)" /> <span id="volumeVal">50</span></div>
             </div>
             <div class="form-row">
               <label class="label" for="clickPattern">Click sound</label>
-              <div class="control"><select id="clickPattern"></select> <button id="previewClick" type="button" class="preview" title="Preview click sound">▶︎</button></div>
+              <div class="control"><select id="clickPattern" title="Select the sound to play on button clicks"></select> <button id="previewClick" type="button" class="preview" title="Preview click sound">▶︎</button></div>
             </div>
             <div class="form-row">
               <label class="label" for="leadPattern">Lead warning</label>
-              <div class="control"><select id="leadPattern"></select> <button id="previewLead" type="button" class="preview" title="Preview lead warning sound">▶︎</button></div>
+              <div class="control"><select id="leadPattern" title="Select the sound to play for lead warnings"></select> <button id="previewLead" type="button" class="preview" title="Preview lead warning sound">▶︎</button></div>
             </div>
             <div class="form-row">
               <label class="label" for="atPattern">At event</label>
-              <div class="control"><select id="atPattern"></select> <button id="previewAt" type="button" class="preview" title="Preview at-event sound">▶︎</button></div>
+              <div class="control"><select id="atPattern" title="Select the sound to play when an event starts"></select> <button id="previewAt" type="button" class="preview" title="Preview at-event sound">▶︎</button></div>
             </div>
             <div class="form-row">
               <label class="label" for="over1Pattern">After event (first)</label>
-              <div class="control"><select id="over1Pattern"></select> <button id="previewOver1" type="button" class="preview" title="Preview first overdue sound">▶︎</button></div>
+              <div class="control"><select id="over1Pattern" title="Select the sound to play for first overdue"></select> <button id="previewOver1" type="button" class="preview" title="Preview first overdue sound">▶︎</button></div>
             </div>
             <div class="form-row">
               <label class="label" for="over2Pattern">After event (second)</label>
-              <div class="control"><select id="over2Pattern"></select> <button id="previewOver2" type="button" class="preview" title="Preview second overdue sound">▶︎</button></div>
+              <div class="control"><select id="over2Pattern" title="Select the sound to play for second overdue"></select> <button id="previewOver2" type="button" class="preview" title="Preview second overdue sound">▶︎</button></div>
             </div>
             <div class="form-row">
-              <label class="label" for="uploadSoundBtn">Upload .mp3</label>
+              <label class="label">Upload/Delete .mp3</label>
               <div class="control">
                 <!-- Hidden file input for custom audio uploads.  Marked as
-                     aria-hidden so it doesn’t require an explicit label.  The
+                     aria-hidden so it doesn't require an explicit label.  The
                      Upload button below triggers this input. -->
                 <input id="uploadSound" type="file" accept="audio/mp3" hidden aria-hidden="true" title="Select an MP3 file" />
                 <button id="uploadSoundBtn" type="button" title="Upload a custom .mp3">Upload…</button>
+                <select id="deleteSoundSelect" title="Select custom sound to delete"></select>
+                <button id="deleteSoundBtn" type="button" title="Delete selected custom sound">Delete</button>
               </div>
             </div>
           </div>
@@ -233,6 +240,10 @@
             <div class="form-row">
               <label class="label" for="helpBtn">Help &amp; Tips</label>
               <div class="control"><button id="helpBtn" type="button" title="Show help and tips">Help</button></div>
+            </div>
+            <div class="form-row">
+              <label class="label" for="updateNotesBtn">Update Notes</label>
+              <div class="control"><button id="updateNotesBtn" type="button" title="View recent update notes and changes">Update Notes</button></div>
             </div>
           </div>
         </div>
@@ -329,6 +340,36 @@
       <div class="modal-actions">
         <button id="editModalSave" class="primary" type="button">Save</button>
         <button id="editModalCancel" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Update Notes Modal -->
+  <div id="updateNotesModal" class="modal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Update Notes</h2>
+        <button class="modal-close" type="button" title="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h3>v0.5.4</h3>
+        <ul>
+          <li>Added Update Notes button in settings to view recent changes</li>
+          <li>Added tooltips to settings for better usability</li>
+        </ul>
+        <h3>v0.5.3</h3>
+        <ul>
+          <li>Automatic day switching when page left open past midnight</li>
+          <li>Delayed countdown display until configured minutes before first event</li>
+          <li>Added countdown delay setting (default 15 minutes)</li>
+        </ul>
+        <h3>v0.5.2</h3>
+        <ul>
+          <li>Fixed lead time alert timing and sound selection</li>
+          <li>Added dedicated dropdown for deleting custom MP3 sounds</li>
+          <li>Improved event editing logic for ad-hoc schedules</li>
+          <li>Updated default lead sound to 'notification tone.mp3'</li>
+        </ul>
       </div>
     </div>
   </div>
