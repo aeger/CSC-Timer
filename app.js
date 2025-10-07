@@ -326,17 +326,23 @@ function syncProfileLabel() {
       const originalList = activeList();
       const originalIdx = originalList.indexOf(ev);
       if (originalIdx === -1) return; // shouldn't happen
-      state.inlineEditing = originalIdx;
-      // Populate inline editor fields
-      const typeSel = $('editType');
-      const timeInput = $('editTime');
-      if (typeSel) typeSel.value = ev.type;
-      if (timeInput) timeInput.value = ev.time;
-      // Show inline editor and hide modal if open
-      const inline = $('inlineEditor');
-      if (inline) inline.hidden = false;
-      const modal = $('editModal');
-      if (modal) modal.hidden = true;
+      if (state.selectedDay) {
+        // Weekly editing uses modal
+        openEditModal(state.selectedDay, originalIdx, ev);
+      } else {
+        // Ad-hoc editing uses inline
+        state.inlineEditing = originalIdx;
+        // Populate inline editor fields
+        const typeSel = $('editType');
+        const timeInput = $('editTime');
+        if (typeSel) typeSel.value = ev.type;
+        if (timeInput) timeInput.value = ev.time;
+        // Show inline editor and hide modal if open
+        const inline = $('inlineEditor');
+        if (inline) inline.hidden = false;
+        const modal = $('editModal');
+        if (modal) modal.hidden = true;
+      }
     }));
     wrap.querySelectorAll('.card-delete').forEach(b=>b.addEventListener('click', ()=>deleteEvent(+b.dataset.index)));
     // Show or hide the inline editor based on whether a schedule entry is being edited

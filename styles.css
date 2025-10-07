@@ -257,4 +257,4 @@ button.ghost{background:transparent;border-color:#334155}
 .modal-body ul { margin: 0; padding-left: 20px; }
 
 /* Toast notifications */
-.toast-container{position:fixed;top:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:0.5rem;z-index:200;}
+.toast-container{position:fixed;top:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:0.5rem;z-index:1000;}
