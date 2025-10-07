@@ -326,45 +326,10 @@ function syncProfileLabel() {
       const originalList = activeList();
       const originalIdx = originalList.indexOf(ev);
       if (originalIdx === -1) return; // shouldn't happen
-      if (state.selectedDay) {
-        // Weekly editing uses modal
-        openEditModal(state.selectedDay, originalIdx, ev);
-      } else {
-        // Ad-hoc editing uses inline
-        state.inlineEditing = originalIdx;
-        // Populate inline editor fields
-        const typeSel = $('editType');
-        const timeInput = $('editTime');
-        if (typeSel) typeSel.value = ev.type;
-        if (timeInput) timeInput.value = ev.time;
-        // Show inline editor and hide modal if open
-        const inline = $('inlineEditor');
-        if (inline) {
-          inline.hidden = false;
-          inline.scrollIntoView({ behavior: 'smooth' });
-        }
-        const modal = $('editModal');
-        if (modal) modal.hidden = true;
-      }
+      // Always use modal for editing
+      openEditModal(state.selectedDay || null, originalIdx, ev);
     }));
     wrap.querySelectorAll('.card-delete').forEach(b=>b.addEventListener('click', ()=>deleteEvent(+b.dataset.index)));
-    // Show or hide the inline editor based on whether a schedule entry is being edited
-    const inlineEl = $('inlineEditor');
-    if (inlineEl) {
-      if (state.inlineEditing == null) {
-        inlineEl.hidden = true;
-      } else {
-        inlineEl.hidden = false;
-        const originalList = activeList();
-        const ev = originalList[state.inlineEditing];
-        if (ev) {
-          const typeSel = $('editType');
-          const timeInput = $('editTime');
-          if (typeSel) typeSel.value = ev.type;
-          if (timeInput) timeInput.value = ev.time;
-        }
-      }
-    }
     // Recompute timeline markers after rendering cards
     renderTimelineMarkers();
   }
@@ -1213,44 +1178,9 @@ function syncProfileLabel() {
         state.editContext = null;
       });
     }
-
-    // Inline editor handlers for ad‑hoc schedules
-    const inlineSave = $('saveChanges');
-    const inlineCancel = $('cancelChanges');
-    if (inlineSave) {
-      inlineSave.addEventListener('click', () => {
-        const idx = state.inlineEditing;
-        if (idx == null || isNaN(idx)) return;
-        const p = prof();
-        const list = state.schedule[p] || [];
-        const typeSel = $('editType');
-        const timeInput = $('editTime');
-        const type = typeSel?.value || 'On Queue';
-        const time = timeInput?.value || '';
-        if (!time) {
-          showToast('Please select a time','error');
-          return;
-        }
-        list[idx] = { time: time, type: type };
-        // Sort list after editing to maintain order
-        list.sort((a,b) => a.time.localeCompare(b.time));
-        state.schedule[p] = list;
-        state.inlineEditing = null;
-        saveAll();
-        renderSchedule();
-        renderWeek();
-        showToast('Event updated','success');
-      });
-    }
-    if (inlineCancel) {
-      inlineCancel.addEventListener('click', () => {
-        state.inlineEditing = null;
-        const inlineEl = $('inlineEditor');
-        if (inlineEl) inlineEl.hidden = true;
-      });
-    }
   }
 
+  // Inline editor handlers for ad‑hoc schedules
   function wireTimezones(){
     const sel=$('timeZone'); if(!sel) return;
     let zones = [];
