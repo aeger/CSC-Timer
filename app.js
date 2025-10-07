@@ -320,7 +320,11 @@ function syncProfileLabel() {
       const idx = +b.dataset.index;
       const ev = list[idx];
       if (!ev) return;
-      state.inlineEditing = idx;
+      // Find the original index in the unsorted activeList
+      const originalList = activeList();
+      const originalIdx = originalList.indexOf(ev);
+      if (originalIdx === -1) return; // shouldn't happen
+      state.inlineEditing = originalIdx;
       // Populate inline editor fields
       const typeSel = $('editType');
       const timeInput = $('editTime');
@@ -340,7 +344,8 @@ function syncProfileLabel() {
         inlineEl.hidden = true;
       } else {
         inlineEl.hidden = false;
-        const ev = list[state.inlineEditing];
+        const originalList = activeList();
+        const ev = originalList[state.inlineEditing];
         if (ev) {
           const typeSel = $('editType');
           const timeInput = $('editTime');
