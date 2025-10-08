@@ -485,11 +485,11 @@ function syncProfileLabel() {
         const secs = Math.floor((diffAbs % 60000) / 1000);
         if (now < first) {
           // Before first event, use countdown delay
+          es && (es.textContent = 'You are not scheduled to work at this time');
           if (diffAbs <= countdownDelayMs) {
             cd && (cd.textContent = `🕒 Countdown to next event: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} (${nxt.type})`);
           } else {
             cd && (cd.textContent = '🕒 Countdown to next event: --');
-            es && (es.textContent = 'You are not scheduled to work at this time');
           }
         } else {
           // During the shift, always show countdown to next event
