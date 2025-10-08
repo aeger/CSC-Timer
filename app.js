@@ -441,33 +441,14 @@ function syncProfileLabel() {
     }
 
     const cd = $('countdown'), es = $('expectedStatus');
-    const useList = activeList();
+    const today = todayShort();
+    const w = getWeek(prof());
+    const useList = (state.selectedDay === today && w[today]) ? w[today] : (state.schedule[prof()] || []);
     const list = useList.slice().sort((a,b) => a.time.localeCompare(b.time));
-    // Compute nxt and cur from list
-    const now = new Date();
-    let nxt = null;
-    for (const ev of list) {
-      let t = parseHM(ev.time);
-      if (t > now) { nxt = ev; break; }
-    }
-    if (!nxt) {
-      for (const ev of list) {
-        let t = new Date(parseHM(ev.time).getTime() + 24 * 60 * 60 * 1000);
-        if (t > now) { nxt = ev; break; }
-      }
-    }
-    let cur = null;
-    for (let i = 0; i < list.length; i++) {
-      let t = parseHM(normalizeTimeStr(list[i].time));
-      if (t <= now) {
-        let nextT = parseHM(normalizeTimeStr(list[i + 1]?.time || '23:59'));
-        if (now < nextT) { cur = list[i]; break; }
-      }
-    }
-
+    let first;
     let notScheduled = (list.length === 0);
     if (!notScheduled) {
-      const first = parseHM(normalizeTimeStr(list[0].time));
+      first = parseHM(normalizeTimeStr(list[0].time));
       let last  = parseHM(normalizeTimeStr(list[list.length - 1].time));
       if (last < first) {
         last = new Date(last.getTime() + 24 * 60 * 60 * 1000); // Last event is next day
