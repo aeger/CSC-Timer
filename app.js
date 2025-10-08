@@ -248,10 +248,10 @@ const VERSION='v0.5.4';
     const timeInput = $('editModalTime');
     if (typeSel) typeSel.value = ev && ev.type ? ev.type : 'On Queue';
     if (timeInput) timeInput.value = ev && ev.time ? ev.time : '';
-    if (timeInput) timeInput.focus();
     // Show the modal
     const modal = $('editModal');
     if (modal) modal.hidden = false;
+    if (timeInput) timeInput.focus();
   }
 
   function typeClass(tp){ return (tp||'').toLowerCase().replace(/\s+/g,''); }
@@ -1167,23 +1167,27 @@ function syncProfileLabel() {
           showToast('Please select a time','error');
           return;
         }
-        const ev = { time: time, type: type };
+        if (ev && ev.time == time && ev.type == type) {
+          showToast('No changes made', 'info');
+          return;
+        }
+        const evNew = { time: time, type: type };
         const p = prof();
         if (day) {
           const w = getWeek(p);
           if (!Array.isArray(w[day])) w[day] = [];
           if (idx == null) {
-            w[day].push(ev);
+            w[day].push(evNew);
           } else {
-            w[day][idx] = ev;
+            w[day][idx] = evNew;
           }
           setWeek(p, w);
         } else {
           const list = state.schedule[p] || [];
           if (idx == null) {
-            list.push(ev);
+            list.push(evNew);
           } else {
-            list[idx] = ev;
+            list[idx] = evNew;
           }
           state.schedule[p] = list;
         }
