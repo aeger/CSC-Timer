@@ -456,7 +456,7 @@ function syncProfileLabel() {
       if (last < first) {
         last = new Date(last.getTime() + 24 * 60 * 60 * 1000); // Last event is next day
       }
-      if (now < first || now > last) notScheduled = true;
+      if (now > last) notScheduled = true;
     }
 
 
