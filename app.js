@@ -502,9 +502,14 @@ function syncProfileLabel() {
           nxtDate = new Date(nxtDate.getTime() + 24 * 60 * 60 * 1000);
         }
         const diffAbs = Math.max(0, nxtDate - now);
-        const mins = Math.floor(diffAbs / 60000);
-        const secs = Math.floor((diffAbs % 60000) / 1000);
-        cd && (cd.textContent = `🕒 Countdown to next event: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} (${nxt.type})`);
+        if (diffAbs <= countdownDelayMs) {
+          const mins = Math.floor(diffAbs / 60000);
+          const secs = Math.floor((diffAbs % 60000) / 1000);
+          cd && (cd.textContent = `🕒 Countdown to next event: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} (${nxt.type})`);
+        } else {
+          cd && (cd.textContent = '🕒 Countdown to next event: --');
+          es && (es.textContent = 'You are not scheduled to work at this time');
+        }
       } else {
         cd && (cd.textContent = '🕒 Countdown to next event: --');
       }
