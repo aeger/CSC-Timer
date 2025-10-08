@@ -294,7 +294,8 @@ function syncProfileLabel() {
     const wrap = $('scheduleCards'); if (!wrap) return;
     wrap.innerHTML = '';
     const now = new Date();
-    const list = activeList().slice().sort((a,b)=>a.time.localeCompare(b.time));
+    const currentList = activeList();
+    const list = currentList.slice().sort((a,b)=>a.time.localeCompare(b.time));
     list.forEach((ev,i)=>{
       let t = parseHM(ev.time);
       if (t < now && t.getHours() < 6) {
@@ -324,8 +325,7 @@ function syncProfileLabel() {
       const ev = list[idx];
       if (!ev) return;
       // Find the original index in the unsorted activeList
-      const originalList = activeList();
-      const originalIdx = originalList.indexOf(ev);
+      const originalIdx = currentList.indexOf(ev);
       if (originalIdx === -1) return; // shouldn't happen
       // Always use modal for editing
       openEditModal(state.selectedDay || null, originalIdx, ev);
