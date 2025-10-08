@@ -448,6 +448,10 @@ function syncProfileLabel() {
     const nxt = nextEvent();
     const cur = currentEvent();
     const now = new Date();
+    const leadMs  = state.settings.leadTime   * 60000;
+    const over1Ms = state.settings.firstWarn  * 60000;
+    const over2Ms = state.settings.secondWarn * 60000;
+    const countdownDelayMs = state.settings.countdownDelay * 60000;
     let first;
     let notScheduled = (list.length === 0);
     if (!notScheduled) {
