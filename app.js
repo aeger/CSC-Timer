@@ -445,6 +445,8 @@ function syncProfileLabel() {
     const w = getWeek(prof());
     const useList = (state.selectedDay === today && w[today]) ? w[today] : (state.schedule[prof()] || []);
     const list = useList.slice().sort((a,b) => a.time.localeCompare(b.time));
+    const nxt = nextEvent();
+    const cur = currentEvent();
     let first;
     let notScheduled = (list.length === 0);
     if (!notScheduled) {
