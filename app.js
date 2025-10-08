@@ -248,6 +248,7 @@ const VERSION='v0.5.4';
     const timeInput = $('editModalTime');
     if (typeSel) typeSel.value = ev && ev.type ? ev.type : 'On Queue';
     if (timeInput) timeInput.value = ev && ev.time ? ev.time : '';
+    if (timeInput) timeInput.focus();
     // Show the modal
     const modal = $('editModal');
     if (modal) modal.hidden = false;
@@ -1154,6 +1155,12 @@ function syncProfileLabel() {
         const ctx = state.editContext || {};
         const day = ctx.day || null;
         let idx = ctx.index;
+        if (idx == null) {
+          // New event
+        } else if (isNaN(idx) || idx < 0) {
+          showToast('Error: invalid event index', 'error');
+          return;
+        }
         const type = $('editModalType')?.value || 'On Queue';
         const time = $('editModalTime')?.value || '';
         if (!time) {
@@ -1165,7 +1172,7 @@ function syncProfileLabel() {
         if (day) {
           const w = getWeek(p);
           if (!Array.isArray(w[day])) w[day] = [];
-          if (idx == null || isNaN(idx)) {
+          if (idx == null) {
             w[day].push(ev);
           } else {
             w[day][idx] = ev;
@@ -1173,7 +1180,7 @@ function syncProfileLabel() {
           setWeek(p, w);
         } else {
           const list = state.schedule[p] || [];
-          if (idx == null || isNaN(idx)) {
+          if (idx == null) {
             list.push(ev);
           } else {
             list[idx] = ev;
@@ -1196,6 +1203,16 @@ function syncProfileLabel() {
         const modal = $('editModal');
         if (modal) modal.hidden = true;
         state.editContext = null;
+      });
+    }
+    // Close modal on outside click
+    const editModal = $('editModal');
+    if (editModal) {
+      editModal.addEventListener('click', (e) => {
+        if (e.target === editModal) {
+          editModal.hidden = true;
+          state.editContext = null;
+        }
       });
     }
   }

@@ -61,6 +61,7 @@ body.light .event-item .kill,
 body.light .event-item .edit {
   border-color: #b0c4df;
   color: var(--fg);
+  background: white;
 }
 
 /*
