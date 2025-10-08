@@ -1,4 +1,4 @@
-const VERSION='v0.5.4A';
+const VERSION='v0.5.4';
 /* CSC Adherence Timer app.js (v0.5.4) */
 (() => {
   'use strict';
@@ -548,8 +548,7 @@ function syncProfileLabel() {
         nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000);
       }
       const diff = nextTime - now;
-      const minsToNext = Math.floor(diff / 60000);
-      if (minsToNext === state.settings.leadTime) {
+      if (diff <= leadMs) {
         showLead = true;
       }
     }
