@@ -1,5 +1,5 @@
-const VERSION='v0.5.4';
-/* CSC Adherence Timer app.js (v0.5.4) */
+const VERSION='v0.5.4A';
+/* CSC Adherence Timer app.js (v0.5.4A) */
 (() => {
   'use strict';
   if (window.__CSC_BOOTED__) return;
