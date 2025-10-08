@@ -459,17 +459,9 @@ function syncProfileLabel() {
       if (now > last) notScheduled = true;
     }
 
-
-    const leadMs  = state.settings.leadTime   * 60000;
-    const over1Ms = state.settings.firstWarn  * 60000;
-    const over2Ms = state.settings.secondWarn * 60000;
-    const countdownDelayMs = state.settings.countdownDelay * 60000;
-
-    // Determine expected type and stage relative to the current event (if any) or
-    // the upcoming event if no current event exists.  `stage` may be null when
-    // we are far from any event.
     let expectedType = 'None';
     let stage = null;
+    let showLead = false;
 
     if (notScheduled) {
       // Nothing scheduled at this time
@@ -535,7 +527,6 @@ function syncProfileLabel() {
     }
 
     // Check for lead warning to next event, even during current event
-    let showLead = false;
     if (nxt && !notScheduled) {
       let nextTime = parseHM(normalizeTimeStr(nxt.time));
       if (nextTime < now) {
