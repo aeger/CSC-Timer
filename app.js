@@ -436,6 +436,8 @@ function syncProfileLabel() {
     if (nowDate !== state.currentDate) {
       state.currentDate = nowDate;
       state.selectedDay = todayShort();
+      renderSchedule();
+      renderWeek();
     }
 
     const cd = $('countdown'), es = $('expectedStatus');
@@ -456,17 +458,17 @@ function syncProfileLabel() {
     }
     let cur = null;
     for (let i = 0; i < list.length; i++) {
-      let t = parseHM(list[i].time);
+      let t = parseHM(normalizeTimeStr(list[i].time));
       if (t <= now) {
-        let nextT = parseHM(list[i + 1]?.time || '23:59');
+        let nextT = parseHM(normalizeTimeStr(list[i + 1]?.time || '23:59'));
         if (now < nextT) { cur = list[i]; break; }
       }
     }
 
     let notScheduled = (list.length === 0);
     if (!notScheduled) {
-      const first = parseHM(list[0].time);
-      let last  = parseHM(list[list.length - 1].time);
+      const first = parseHM(normalizeTimeStr(list[0].time));
+      let last  = parseHM(normalizeTimeStr(list[list.length - 1].time));
       if (last < first) {
         last = new Date(last.getTime() + 24 * 60 * 60 * 1000); // Last event is next day
       }
@@ -495,7 +497,7 @@ function syncProfileLabel() {
     } else {
       // There is at least one event.  Show countdown to the next event if within delay time.
       if (nxt) {
-        let nxtDate = parseHM(nxt.time);
+        let nxtDate = parseHM(normalizeTimeStr(nxt.time));
         if (nxtDate < now) {
           nxtDate = new Date(nxtDate.getTime() + 24 * 60 * 60 * 1000);
         }
@@ -526,7 +528,7 @@ function syncProfileLabel() {
         // Before the first event – treat lead time relative to the next event
         expectedType = cur ? cur.type : 'None';
         if (nxt) {
-          let nextTime = parseHM(nxt.time);
+          let nextTime = parseHM(normalizeTimeStr(nxt.time));
           if (nextTime < now) {
             nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000); // Add one day
           }
@@ -546,7 +548,7 @@ function syncProfileLabel() {
     // Check for lead warning to next event, even during current event
     let showLead = false;
     if (nxt && !notScheduled) {
-      let nextTime = parseHM(nxt.time);
+      let nextTime = parseHM(normalizeTimeStr(nxt.time));
       if (nextTime < now) {
         nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000);
       }
