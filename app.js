@@ -438,9 +438,30 @@ function syncProfileLabel() {
     }
 
     const cd = $('countdown'), es = $('expectedStatus');
-    const list = activeList().slice().sort((a,b) => a.time.localeCompare(b.time));
-    const nxt = nextEvent();
-    const cur = currentEvent();
+    const today = todayShort();
+    const useList = (state.selectedDay && state.selectedDay !== today) ? (state.schedule[prof()] || []) : activeList();
+    const list = useList.slice().sort((a,b) => a.time.localeCompare(b.time));
+    // Compute nxt and cur from list
+    const now = new Date();
+    let nxt = null;
+    for (const ev of list) {
+      let t = parseHM(ev.time);
+      if (t > now) { nxt = ev; break; }
+    }
+    if (!nxt) {
+      for (const ev of list) {
+        let t = new Date(parseHM(ev.time).getTime() + 24 * 60 * 60 * 1000);
+        if (t > now) { nxt = ev; break; }
+      }
+    }
+    let cur = null;
+    for (let i = 0; i < list.length; i++) {
+      let t = parseHM(list[i].time);
+      if (t <= now) {
+        let nextT = parseHM(list[i + 1]?.time || '23:59');
+        if (now < nextT) { cur = list[i]; break; }
+      }
+    }
 
     let notScheduled = (list.length === 0);
     if (!notScheduled) {
@@ -465,7 +486,6 @@ function syncProfileLabel() {
     let expectedType = 'None';
     let stage = null;
 
-    const now = new Date();
     if (notScheduled) {
       // Nothing scheduled at this time
       expectedType = 'Not scheduled';
