@@ -289,18 +289,63 @@
   <!-- Planner popup removed; editing is handled by a single modal -->
 
   <!-- Help / tips modal -->
-  <div id="helpPopup" class="popup" hidden>
-    <div class="popup-title">Help &amp; Guide</div>
-    <div class="popup-content">
-      <p><strong>Color codes:</strong> Green – upcoming; Yellow – approaching; Red – overdue. These colors apply to the clock and the expected status.</p>
-      <p><strong>Status buttons:</strong> Click the button that matches your actual status. A green outline appears when you match the expected status.</p>
-      <p><strong>Manager Escalation:</strong> When ON, only Break and Meal alerts play.</p>
-      <p>You can adjust lead/overdue timers, sounds, themes, and more in Settings. Export a single day, export all or download a backup from the Schedules section.</p>
-      <p><strong>Keyboard shortcuts:</strong> Use <kbd>Alt</kbd> + <kbd>1</kbd>…<kbd>8</kbd> to acknowledge the corresponding status button, in the order you arrange them. Drag and drop the buttons to reorder.</p>
-      <p><strong>Audio notice:</strong> Modern browsers require you to interact with the page before they will play any sound.  Click anywhere on the app (for example, one of the status buttons) to "unlock" audio.  If you refresh or reopen the app, you may need to do this again before alerts and clicks will be audible.</p>
-    </div>
-    <div class="popup-actions">
-      <button id="helpClose" type="button" class="primary">Close</button>
+  <div id="helpPopup" class="modal" hidden>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Help &amp; Guide</h2>
+        <button class="modal-close" type="button" title="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h3>Getting Started</h3>
+        <p>This web app helps you stay on top of your schedule. Your daily events appear as cards and on the timeline above.</p>
+        <p>When a coloured event becomes active, the clock and expected status will turn yellow or red. Click the matching status button to acknowledge it.</p>
+        <p>You can customize lead/overdue warnings, sounds, themes and more in Settings. Use the planner below to set up weekly schedules. Import/export or back up your data from the Settings panel.</p>
+
+        <h3>Color Codes</h3>
+        <p><span class="color-green">Green</span> – upcoming event; <span class="color-yellow">Yellow</span> – approaching (lead time active); <span class="color-red">Red</span> – overdue. These colors apply to the clock and the expected status.</p>
+
+        <h3>Status Buttons</h3>
+        <p>Click the button that matches your actual status. A green outline appears when you match the expected status. Drag and drop to reorder buttons for keyboard shortcuts.</p>
+
+        <h3>Manager Escalation</h3>
+        <p>When ON, only Break and Meal alerts play, muting others for quieter operation.</p>
+
+        <h3>Profiles</h3>
+        <p>Switch between different schedule profiles. Add or delete profiles in Settings. Each profile has its own ad-hoc and weekly schedules.</p>
+
+        <h3>PWA Installation</h3>
+        <p>This app can be installed as a Progressive Web App (PWA) for offline use. Look for the install prompt or button in your browser.</p>
+
+        <h3>Keyboard Shortcuts</h3>
+        <p>Use <kbd>Alt</kbd> + <kbd>1</kbd>…<kbd>8</kbd> to acknowledge the corresponding status button, in the order you arrange them.</p>
+
+        <h3>Audio</h3>
+        <p>Modern browsers require you to interact with the page before they will play any sound. Click anywhere on the app (e.g., one of the status buttons) to "unlock" audio. If you refresh or reopen the app, you may need to do this again before alerts and clicks will be audible.</p>
+        <p>Adjust sounds, volumes, and patterns in Settings. Upload custom MP3 files for personalized alerts.</p>
+
+        <h3>Data Management</h3>
+        <p>Export a single day's schedule, export all data, or download a backup. Import JSON files to restore or merge schedules.</p>
+
+        <h3>FAQ</h3>
+        <h4>How do I hard-refresh and clear cache in Edge?</h4>
+        <ol>
+          <li>Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd> or <kbd>Ctrl</kbd> + <kbd>F5</kbd> to hard-refresh.</li>
+          <li>Open DevTools with <kbd>F12</kbd>, go to Application tab, clear Storage and Cache.</li>
+          <li>Alternatively, go to Settings > Privacy, search, and clear browsing data for the site.</li>
+        </ol>
+        <h4>How do I hard-refresh and clear cache in Chrome?</h4>
+        <ol>
+          <li>Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd> or <kbd>Ctrl</kbd> + <kbd>F5</kbd> to hard-refresh.</li>
+          <li>Open DevTools with <kbd>F12</kbd>, go to Application tab, clear Storage and Cache.</li>
+          <li>Alternatively, go to Settings > Privacy and security > Clear browsing data, select Cached images and files.</li>
+        </ol>
+        <h4>Why are sounds not playing?</h4>
+        <p>Ensure Sounds are enabled in Settings, choose sound files, and "unlock" audio by clicking on the page first.</p>
+        <h4>Why is the PWA install button disabled?</h4>
+        <p>Use a local server (not file://). The button appears after the browser's install prompt event.</p>
+        <h4>How do I reset all data?</h4>
+        <p>Use the "Reset all data" button in Settings > Schedules. This clears all profiles, schedules, and settings.</p>
+      </div>
     </div>
   </div>
 
@@ -352,11 +397,11 @@
         <button class="modal-close" type="button" title="Close">&times;</button>
       </div>
       <div class="modal-body">
+        <p>GitHub repository: <a href="https://github.com/aeger/CSC-Timer" target="_blank" rel="noopener">https://github.com/aeger/CSC-Timer</a></p>
         <h3>v0.5.4A</h3>
         <ul>
           <li>Hotfix for event editing modal functionality and countdown display</li>
           <li>Improved time format handling for 12h and 24h inputs</li>
-          <li>GitHub repository: <a href="https://github.com/aeger/CSC-Timer" target="_blank" rel="noopener">https://github.com/aeger/CSC-Timer</a></li>
         </ul>
         <h3>v0.5.4</h3>
         <ul>

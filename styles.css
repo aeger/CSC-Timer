@@ -264,4 +264,9 @@ button.ghost{background:transparent;border-color:#334155}
 .toast.info{background:#2196f3;}
 .toast.success{background:#4caf50;}
 .toast.error{background:#f44336;}
-@keyframes fadeOut{0%{opacity:1;}100%{opacity:0;transform:translateY(10px);}}
+@keyframes fadeOut{0%{opacity:1;}100%{opacity:0;transform:translateY(10px);}
+
+/* Colored text for help */
+.color-green { color: #22c55e; font-weight: bold; }
+.color-yellow { color: #f59e0b; font-weight: bold; }
+.color-red { color: #ef4444; font-weight: bold; }

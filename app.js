@@ -1074,6 +1074,10 @@ function syncProfileLabel() {
       const modal = $('updateNotesModal');
       if (modal) modal.hidden = true;
     });
+    $('helpPopup')?.querySelector('.modal-close')?.addEventListener('click', () => {
+      const modal = $('helpPopup');
+      if (modal) modal.hidden = true;
+    });
 
 
     // Theme selection dropdown: update theme and persist
