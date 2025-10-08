@@ -447,6 +447,7 @@ function syncProfileLabel() {
     const list = useList.slice().sort((a,b) => a.time.localeCompare(b.time));
     const nxt = nextEvent();
     const cur = currentEvent();
+    const now = new Date();
     let first;
     let notScheduled = (list.length === 0);
     if (!notScheduled) {
@@ -455,7 +456,6 @@ function syncProfileLabel() {
       if (last < first) {
         last = new Date(last.getTime() + 24 * 60 * 60 * 1000); // Last event is next day
       }
-      const now = new Date();
       if (now < first || now > last) notScheduled = true;
     }
 
