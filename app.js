@@ -462,65 +462,34 @@ function syncProfileLabel() {
     let expectedType = 'None';
     let stage = null;
     let showLead = false;
-    const leadMs  = state.settings.leadTime   * 60000;
-    const over1Ms = state.settings.firstWarn  * 60000;
-    const over2Ms = state.settings.secondWarn * 60000;
-    const countdownDelayMs = state.settings.countdownDelay * 60000;
 
     if (notScheduled) {
-      // Nothing scheduled at this time
       expectedType = 'Not scheduled';
       stage = 'off';
       cd && (cd.textContent = '🕒 Countdown to next event: --');
       es && (es.textContent = 'You are not scheduled to work at this time');
     } else {
-      // There is at least one event.  Show countdown to the next event if within delay time.
-      if (nxt) {
-        let nxtDate = parseHM(normalizeTimeStr(nxt.time));
-        if (nxtDate < now) {
-          nxtDate = new Date(nxtDate.getTime() + 24 * 60 * 60 * 1000);
-        }
-        const diffAbs = Math.max(0, nxtDate - now);
-        const mins = Math.floor(diffAbs / 60000);
-        const secs = Math.floor((diffAbs % 60000) / 1000);
-        if (now < first) {
-          // Before first event, use countdown delay
-          es && (es.textContent = 'You are not scheduled to work at this time');
-          if (diffAbs <= countdownDelayMs) {
-            cd && (cd.textContent = `🕒 Countdown to next event: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} (${nxt.type})`);
-          } else {
-            cd && (cd.textContent = '🕒 Countdown to next event: --');
-          }
-        } else {
-          // During the shift, always show countdown to next event
-          cd && (cd.textContent = `🕒 Countdown to next event: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} (${nxt.type})`);
-        }
-      } else {
-        cd && (cd.textContent = '🕒 Countdown to next event: --');
+      if (now < first) {
+        expectedType = 'Not scheduled';
+        es && (es.textContent = 'You are not scheduled to work at this time');
       }
-
-      // If there is a current event (one scheduled before or at now), compute
-      // how long we have been in it.  Otherwise we are before the first event.
-      if (cur && parseHM(cur.time) <= now) {
+      if (cur && parseHM(normalizeTimeStr(cur.time)) <= now) {
         expectedType = cur.type;
-        const startMs = parseHM(cur.time).getTime();
-        const elapsed = now.getTime() - startMs;
+        const elapsed = now.getTime() - parseHM(normalizeTimeStr(cur.time)).getTime();
         if (elapsed < over1Ms) stage = 'at';
         else if (elapsed < over2Ms) stage = 'over1';
         else stage = 'over2';
         es && (es.textContent = `Current Expected Status: ${expectedType}`);
       } else {
-        // Before the first event – treat lead time relative to the next event
         expectedType = cur ? cur.type : 'None';
         if (nxt) {
           let nextTime = parseHM(normalizeTimeStr(nxt.time));
           if (nextTime < now) {
-            nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000); // Add one day
+            nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000);
           }
           const diff = nextTime - now;
           if (diff <= leadMs) {
-            // stage = 'lead'; removed
-            // expectedType = nxt.type; moved below
+            showLead = true;
           }
         }
         if (showLead) {
