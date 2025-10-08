@@ -462,6 +462,10 @@ function syncProfileLabel() {
     let expectedType = 'None';
     let stage = null;
     let showLead = false;
+    const leadMs  = state.settings.leadTime   * 60000;
+    const over1Ms = state.settings.firstWarn  * 60000;
+    const over2Ms = state.settings.secondWarn * 60000;
+    const countdownDelayMs = state.settings.countdownDelay * 60000;
 
     if (notScheduled) {
       // Nothing scheduled at this time
