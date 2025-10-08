@@ -1,4 +1,4 @@
-const VERSION='v0.5.4';
+const VERSION='v0.5.4A';
 /* CSC Adherence Timer app.js (v0.5.4) */
 (() => {
   'use strict';

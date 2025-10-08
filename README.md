@@ -1,4 +1,4 @@
-# CSC Adherence Timer (v0.5.4)
+# CSC Adherence Timer (v0.5.4A)
 
 A lightweight, offline-capable web app to show the current time, countdown to the next event, color-coded status, audible alerts, and a weekly planner.
 
@@ -29,6 +29,27 @@ A lightweight, offline-capable web app to show the current time, countdown to th
 - PWA:
   - Installable (when served over http/https)
   - Offline caching of core assets
+
+## Update Notes
+### v0.5.4A
+- Hotfix for event editing modal functionality and countdown display
+- Improved time format handling for 12h and 24h inputs
+- GitHub repository: https://github.com/aeger/CSC-Timer
+
+### v0.5.4
+- Added Update Notes button in settings to view recent changes
+- Added tooltips to settings for better usability
+
+### v0.5.3
+- Automatic day switching when page left open past midnight
+- Delayed countdown display until configured minutes before first event
+- Added countdown delay setting (default 15 minutes)
+
+### v0.5.2
+- Fixed lead time alert timing and sound selection
+- Added dedicated dropdown for deleting custom MP3 sounds
+- Improved event editing logic for ad-hoc schedules
+- Updated default lead sound to 'notification tone.mp3'
 
 ## Getting Started
 1. Unzip into a folder.
