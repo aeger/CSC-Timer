@@ -250,7 +250,7 @@ const VERSION='v0.5.4';
     if (timeInput) timeInput.value = ev && ev.time ? ev.time : '';
     // Show the modal
     const modal = $('editModal');
-    if (modal) modal.hidden = false;
+    if (modal) modal.style.display = 'block';
     if (timeInput) timeInput.focus();
   }
 
@@ -502,14 +502,9 @@ function syncProfileLabel() {
           nxtDate = new Date(nxtDate.getTime() + 24 * 60 * 60 * 1000);
         }
         const diffAbs = Math.max(0, nxtDate - now);
-        if (diffAbs <= countdownDelayMs || nxt.type.toLowerCase() === 'shift end') {
-          const mins = Math.floor(diffAbs / 60000);
-          const secs = Math.floor((diffAbs % 60000) / 1000);
-          cd && (cd.textContent = `🕒 Countdown to next event: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} (${nxt.type})`);
-        } else {
-          cd && (cd.textContent = '🕒 Countdown to next event: --');
-          es && (es.textContent = 'You are not scheduled to work at this time');
-        }
+        const mins = Math.floor(diffAbs / 60000);
+        const secs = Math.floor((diffAbs % 60000) / 1000);
+        cd && (cd.textContent = `🕒 Countdown to next event: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} (${nxt.type})`);
       } else {
         cd && (cd.textContent = '🕒 Countdown to next event: --');
       }
@@ -1198,7 +1193,7 @@ function syncProfileLabel() {
         renderWeek();
         // Hide modal and clear edit context
         const modal = $('editModal');
-        if (modal) modal.hidden = true;
+        if (modal) modal.style.display = 'none';
         state.editContext = null;
         showToast('Event saved','success');
       });
@@ -1206,7 +1201,7 @@ function syncProfileLabel() {
     if (editCancelBtn) {
       editCancelBtn.addEventListener('click', () => {
         const modal = $('editModal');
-        if (modal) modal.hidden = true;
+        if (modal) modal.style.display = 'none';
         state.editContext = null;
       });
     }
@@ -1215,7 +1210,7 @@ function syncProfileLabel() {
     if (editModal) {
       editModal.addEventListener('click', (e) => {
         if (e.target === editModal) {
-          editModal.hidden = true;
+          editModal.style.display = 'none';
           state.editContext = null;
         }
       });
