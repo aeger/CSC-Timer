@@ -439,9 +439,7 @@ function syncProfileLabel() {
     }
 
     const cd = $('countdown'), es = $('expectedStatus');
-    const today = todayShort();
-    const w = getWeek(prof());
-    const useList = (state.selectedDay === today && w[today]) ? w[today] : (state.schedule[prof()] || []);
+    const useList = activeList();
     const list = useList.slice().sort((a,b) => a.time.localeCompare(b.time));
     // Compute nxt and cur from list
     const now = new Date();
