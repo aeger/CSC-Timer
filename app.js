@@ -239,7 +239,7 @@ const VERSION='v0.5.4';
    * @param {object|null} ev The event object being edited, if any.
    */
   function openEditModal(day, idx, ev){
-    state.editContext = { day: day || null, index: idx };
+    state.editContext = { day: day || null, index: idx, originalEv: ev };
     // Set the day label; for ad‑hoc schedules show the selected day or today's day
     const lbl = $('editDayLabel');
     if (lbl) lbl.textContent = day || (state.selectedDay || todayShort());
@@ -1163,6 +1163,7 @@ function syncProfileLabel() {
           showToast('Please select a time','error');
           return;
         }
+        const ev = ctx.originalEv;
         if (ev && ev.time == time && ev.type == type) {
           showToast('No changes made', 'info');
           return;
