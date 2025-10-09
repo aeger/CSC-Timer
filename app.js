@@ -475,7 +475,7 @@ function syncProfileLabel() {
     const cd = $('countdown'), es = $('expectedStatus');
     const today = todayShort();
     const w = getWeek(prof());
-    const useList = (w[today] && w[today].length > 0) ? w[today] : (state.schedule[prof()] || []);
+    const useList = activeList();
     const list = useList.slice().sort((a,b) => a.time.localeCompare(b.time));
     const nxt = nextEventFromList(list);
     const cur = currentEventFromList(list);
