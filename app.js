@@ -279,9 +279,41 @@ const VERSION='v0.5.4A';
   }
   function currentEvent(){
     const list = activeList().slice().sort((a,b)=>a.time.localeCompare(b.time));
-    const now = new Date(); let curr = null;
-    for (const ev of list){ const t=parseHM(ev.time); if (t <= now) curr = ev; else break; }
-    return curr || null;
+    const now = new Date();
+    for (const ev of list) {
+      let t = parseHM(normalizeTimeStr(ev.time));
+      if (t <= now) {
+        let nextT = parseHM(normalizeTimeStr(list[list.indexOf(ev) + 1]?.time || '23:59'));
+        if (now < nextT) return ev;
+      }
+    }
+    return null;
+  }
+
+  function nextEventFromList(list) {
+    const now = new Date();
+    for (const ev of list) {
+      let t = parseHM(normalizeTimeStr(ev.time));
+      if (t > now) return ev;
+    }
+    // No future events today, check tomorrow
+    for (const ev of list) {
+      let t = new Date(parseHM(normalizeTimeStr(ev.time)).getTime() + 24 * 60 * 60 * 1000);
+      if (t > now) return ev;
+    }
+    return null;
+  }
+
+  function currentEventFromList(list) {
+    const now = new Date();
+    for (const ev of list) {
+      let t = parseHM(normalizeTimeStr(ev.time));
+      if (t <= now) {
+        let nextT = parseHM(normalizeTimeStr(list[list.indexOf(ev) + 1]?.time || '23:59'));
+        if (now < nextT) return ev;
+      }
+    }
+    return null;
   }
 
 function syncProfileLabel() {
@@ -443,10 +475,10 @@ function syncProfileLabel() {
     const cd = $('countdown'), es = $('expectedStatus');
     const today = todayShort();
     const w = getWeek(prof());
-    const useList = (state.selectedDay === today && w[today]) ? w[today] : (state.schedule[prof()] || []);
+    const useList = (w[today] && w[today].length > 0) ? w[today] : (state.schedule[prof()] || []);
     const list = useList.slice().sort((a,b) => a.time.localeCompare(b.time));
-    const nxt = nextEvent();
-    const cur = currentEvent();
+    const nxt = nextEventFromList(list);
+    const cur = currentEventFromList(list);
     const now = new Date();
     const leadMs  = state.settings.leadTime   * 60000;
     const over1Ms = state.settings.firstWarn  * 60000;
