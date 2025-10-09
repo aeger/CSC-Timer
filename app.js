@@ -508,30 +508,31 @@ function syncProfileLabel() {
       if (now < first) {
         expectedType = 'Not scheduled';
         es && (es.textContent = 'You are not scheduled to work at this time');
-      }
-      if (cur && parseHM(normalizeTimeStr(cur.time)) <= now) {
-        expectedType = cur.type;
-        const elapsed = now.getTime() - parseHM(normalizeTimeStr(cur.time)).getTime();
-        if (elapsed < over1Ms) stage = 'at';
-        else if (elapsed < over2Ms) stage = 'over1';
-        else stage = 'over2';
-        es && (es.textContent = `Current Expected Status: ${expectedType}`);
       } else {
-        expectedType = cur ? cur.type : 'None';
-        if (nxt) {
-          let nextTime = parseHM(normalizeTimeStr(nxt.time));
-          if (nextTime < now) {
-            nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000);
+        if (cur && parseHM(normalizeTimeStr(cur.time)) <= now) {
+          expectedType = cur.type;
+          const elapsed = now.getTime() - parseHM(normalizeTimeStr(cur.time)).getTime();
+          if (elapsed < over1Ms) stage = 'at';
+          else if (elapsed < over2Ms) stage = 'over1';
+          else stage = 'over2';
+          es && (es.textContent = `Current Expected Status: ${expectedType}`);
+        } else {
+          expectedType = cur ? cur.type : 'None';
+          if (nxt) {
+            let nextTime = parseHM(normalizeTimeStr(nxt.time));
+            if (nextTime < now) {
+              nextTime = new Date(nextTime.getTime() + 24 * 60 * 60 * 1000);
+            }
+            const diff = nextTime - now;
+            if (diff <= leadMs) {
+              showLead = true;
+            }
           }
-          const diff = nextTime - now;
-          if (diff <= leadMs) {
-            showLead = true;
+          if (showLead) {
+            expectedType = nxt.type;
           }
+          es && (es.textContent = `Current Expected Status: ${expectedType}`);
         }
-        if (showLead) {
-          expectedType = nxt.type;
-        }
-        es && (es.textContent = `Current Expected Status: ${expectedType}`);
       }
     }
 
