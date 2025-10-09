@@ -535,6 +535,20 @@ function syncProfileLabel() {
       }
     }
 
+    // countdown logic
+    if (nxt) {
+      let nxtDate = parseHM(normalizeTimeStr(nxt.time));
+      if (nxtDate < now) {
+        nxtDate = new Date(nxtDate.getTime() + 24 * 60 * 60 * 1000);
+      }
+      const diffAbs = Math.max(0, nxtDate - now);
+      const mins = Math.floor(diffAbs / 60000);
+      const secs = Math.floor((diffAbs % 60000) / 1000);
+      cd && (cd.textContent = `🕒 Countdown to next event: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} (${nxt.type})`);
+    } else {
+      cd && (cd.textContent = '🕒 Countdown to next event: --');
+    }
+
     // Check for lead warning to next event, even during current event
     if (nxt && !notScheduled) {
       let nextTime = parseHM(normalizeTimeStr(nxt.time));
