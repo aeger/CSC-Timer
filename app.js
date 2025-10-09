@@ -544,7 +544,17 @@ function syncProfileLabel() {
       const diffAbs = Math.max(0, nxtDate - now);
       const mins = Math.floor(diffAbs / 60000);
       const secs = Math.floor((diffAbs % 60000) / 1000);
-      cd && (cd.textContent = `🕒 Countdown to next event: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} (${nxt.type})`);
+      if (now < first) {
+        // Before first event, use countdown delay
+        if (diffAbs <= countdownDelayMs) {
+          cd && (cd.textContent = `🕒 Countdown to next event: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} (${nxt.type})`);
+        } else {
+          cd && (cd.textContent = '🕒 Countdown to next event: --');
+        }
+      } else {
+        // During the shift, always show countdown to next event
+        cd && (cd.textContent = `🕒 Countdown to next event: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} (${nxt.type})`);
+      }
     } else {
       cd && (cd.textContent = '🕒 Countdown to next event: --');
     }
