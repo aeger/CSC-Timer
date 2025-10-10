@@ -3,6 +3,16 @@
   --brand:#0033a0; --accent:#ff6a13; --ok:#2a9d8f; --warn:#f4a261; --bad:#e63946;
 }
 
+/* Accessibility: Focus indicators */
+button:focus, input:focus, select:focus, textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible), input:focus:not(:focus-visible), select:focus:not(:focus-visible), textarea:focus:not(:focus-visible) {
+  outline: none;
+}
+
 /* Light theme variables inspired by bd.com: soft blues and whites */
 body.light{
   /*

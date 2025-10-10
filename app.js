@@ -162,7 +162,16 @@ const VERSION='v0.5.4A';
     try { localStorage.setItem('onboardingShown','true'); } catch {}
   }
 
-  function parseHM(hm){ const [H,M]=hm.split(':').map(Number); const d=new Date(); d.setHours(H,M,0,0); return d; }
+  function parseHM(hm){
+    if (!hm || typeof hm !== 'string') return new Date();
+    const parts = hm.split(':');
+    if (parts.length !== 2) return new Date();
+    const [H, M] = parts.map(Number);
+    if (isNaN(H) || isNaN(M) || H < 0 || H > 23 || M < 0 || M > 59) return new Date();
+    const d = new Date();
+    d.setHours(H, M, 0, 0);
+    return d;
+  }
   function displayTime(hm){
     const [H,M] = hm.split(':').map(Number);
     if (state.settings.timeFormat === '24') return `${String(H).padStart(2,'0')}:${String(M).padStart(2,'0')}`;
@@ -929,18 +938,45 @@ function syncProfileLabel() {
 
     $('uploadSoundBtn')?.addEventListener('click',()=> $('uploadSound')?.click());
     $('uploadSound')?.addEventListener('change',async e=>{
-      const f=e.target.files?.[0]; if(!f||!/\.mp3$/i.test(f.name)) return;
-      const buf=await f.arrayBuffer(); const b64=btoa(String.fromCharCode(...new Uint8Array(buf)));
-      state.settings.customSounds[f.name]=`data:audio/mp3;base64,${b64}`;
-      saveAll();
-      const list=await listSoundFiles();
-      setSelect('clickPattern',list,state.settings.clickPattern);
-      setSelect('leadPattern',list,state.settings.sounds.lead.file);
-      setSelect('atPattern',list,state.settings.sounds.at.file);
-      setSelect('over1Pattern',list,state.settings.sounds.over1.file);
-      setSelect('over2Pattern',list,state.settings.sounds.over2.file);
-      setSelect('deleteSoundSelect', Object.keys(state.settings.customSounds || {}), '');
-      showToast('Uploaded. Select it from the dropdowns.','success');
+      const f=e.target.files?.[0];
+      if(!f) return;
+
+      // Validate file extension
+      if(!/\.mp3$/i.test(f.name)) {
+        showToast('Only MP3 files are allowed', 'error');
+        return;
+      }
+
+      // Validate MIME type
+      if(!f.type || !f.type.startsWith('audio/mpeg')) {
+        showToast('Invalid file type. Please select a valid MP3 file', 'error');
+        return;
+      }
+
+      // Validate file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+      if(f.size > maxSize) {
+        showToast('File too large. Maximum size is 10MB', 'error');
+        return;
+      }
+
+      try {
+        const buf=await f.arrayBuffer();
+        const b64=btoa(String.fromCharCode(...new Uint8Array(buf)));
+        state.settings.customSounds[f.name]=`data:audio/mp3;base64,${b64}`;
+        saveAll();
+        const list=await listSoundFiles();
+        setSelect('clickPattern',list,state.settings.clickPattern);
+        setSelect('leadPattern',list,state.settings.sounds.lead.file);
+        setSelect('atPattern',list,state.settings.sounds.at.file);
+        setSelect('over1Pattern',list,state.settings.sounds.over1.file);
+        setSelect('over2Pattern',list,state.settings.sounds.over2.file);
+        setSelect('deleteSoundSelect', Object.keys(state.settings.customSounds || {}), '');
+        showToast('Uploaded. Select it from the dropdowns.','success');
+      } catch(error) {
+        showToast('Failed to upload sound file', 'error');
+        console.error('Sound upload error:', error);
+      }
     });
 
     $('deleteSoundBtn')?.addEventListener('click', async () => {
@@ -949,20 +985,36 @@ function syncProfileLabel() {
         showToast('Please select a custom sound to delete', 'error');
         return;
       }
-      if (state.settings.customSounds && state.settings.customSounds[selected]) {
-        delete state.settings.customSounds[selected];
-        saveAll();
-        const list = await listSoundFiles();
-        setSelect('clickPattern', list, state.settings.clickPattern || 'click.mp3');
-        setSelect('leadPattern', list, state.settings.sounds.lead.file || 'notification tone.mp3');
-        setSelect('atPattern', list, state.settings.sounds.at.file || 'a.mp3');
-        setSelect('over1Pattern', list, state.settings.sounds.over1.file || 'a.mp3');
-        setSelect('over2Pattern', list, state.settings.sounds.over2.file || 'a.mp3');
-        setSelect('deleteSoundSelect', Object.keys(state.settings.customSounds || {}), '');
-        showToast('Custom sound deleted', 'success');
-      } else {
+      if (!state.settings.customSounds || !state.settings.customSounds[selected]) {
         showToast('Selected sound is not a custom upload', 'error');
+        return;
       }
+
+      // Check if sound is currently in use
+      const s = state.settings;
+      const inUseSounds = [
+        s.clickPattern,
+        s.sounds?.lead?.file,
+        s.sounds?.at?.file,
+        s.sounds?.over1?.file,
+        s.sounds?.over2?.file
+      ].filter(Boolean);
+
+      if (inUseSounds.includes(selected)) {
+        showToast('Cannot delete sound that is currently selected for use', 'error');
+        return;
+      }
+
+      delete state.settings.customSounds[selected];
+      saveAll();
+      const list = await listSoundFiles();
+      setSelect('clickPattern', list, state.settings.clickPattern || 'click.mp3');
+      setSelect('leadPattern', list, state.settings.sounds.lead.file || 'notification tone.mp3');
+      setSelect('atPattern', list, state.settings.sounds.at.file || 'a.mp3');
+      setSelect('over1Pattern', list, state.settings.sounds.over1.file || 'a.mp3');
+      setSelect('over2Pattern', list, state.settings.sounds.over2.file || 'a.mp3');
+      setSelect('deleteSoundSelect', Object.keys(state.settings.customSounds || {}), '');
+      showToast('Custom sound deleted', 'success');
     });
   }
 
@@ -1266,15 +1318,32 @@ function syncProfileLabel() {
     r.onload = () => {
       try {
         const data = JSON.parse(r.result);
+
+        // Validate data structure
+        if (!data || (typeof data !== 'object' && !Array.isArray(data))) {
+          throw new Error('Invalid data format: expected object or array');
+        }
+
         // Detect full backup format: keys starting with schedule_ or schedule_week_ or settings
         if (data && typeof data === 'object' && (Object.keys(data).some(k => /^schedule_/.test(k)) || 'settings' in data)) {
+          // Validate backup structure
+          const keys = Object.keys(data);
+          const validKeys = keys.every(k => /^schedule_|^schedule_week_|^settings$|^customSounds$/.test(k));
+          if (!validKeys) {
+            throw new Error('Invalid backup format: contains unrecognized keys');
+          }
           // full restore
           restoreBackup(data);
           showToast('Backup restored','success');
           return;
         }
+
         const p = prof();
         if (Array.isArray(data)) {
+          // Validate schedule array
+          if (!data.every(item => item && typeof item === 'object' && 'time' in item && 'type' in item)) {
+            throw new Error('Invalid schedule format: events must have time and type properties');
+          }
           if (state.selectedDay) {
             const w = getWeek(p);
             w[state.selectedDay] = data;
@@ -1283,19 +1352,36 @@ function syncProfileLabel() {
             state.schedule[p] = data;
           }
         } else if (data && typeof data === 'object') {
+          // Validate week data
           if (data.week) {
+            if (typeof data.week !== 'object') {
+              throw new Error('Invalid week data: must be an object');
+            }
             const w = getWeek(p);
             Object.assign(w, data.week);
             setWeek(p, w);
           }
-          if (Array.isArray(data.adhoc)) state.schedule[p] = data.adhoc;
-        } else throw new Error('Unsupported format');
+          // Validate adhoc schedule
+          if (data.adhoc) {
+            if (!Array.isArray(data.adhoc)) {
+              throw new Error('Invalid adhoc data: must be an array');
+            }
+            if (!data.adhoc.every(item => item && typeof item === 'object' && 'time' in item && 'type' in item)) {
+              throw new Error('Invalid adhoc schedule: events must have time and type properties');
+            }
+            state.schedule[p] = data.adhoc;
+          }
+        } else {
+          throw new Error('Unsupported format: expected array or object with week/adhoc properties');
+        }
+
         saveAll();
         renderSchedule();
         renderWeek();
         showToast('Import complete','success');
       } catch (e) {
         showToast('Import failed: ' + e.message,'error');
+        console.error('Import error:', e);
       }
     };
     r.readAsText(file);
