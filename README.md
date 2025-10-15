@@ -37,6 +37,7 @@ A lightweight, offline-capable web app to show the current time, countdown to th
 - Improved JSON import validation with better error handling
 - Added Subresource Integrity (SRI) hashes for external CDN resources
 - Enhanced accessibility with focus indicators for keyboard navigation
+- Fixed backup import bug with unknown keys filtering
 
 ### v0.5.4A
 - Hotfix for event editing modal functionality and countdown display
