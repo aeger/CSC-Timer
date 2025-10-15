@@ -1342,7 +1342,7 @@ function syncProfileLabel() {
 
         // Detect full backup format: keys starting with schedule_ or schedule_week_ or settings
         if (data && typeof data === 'object' && (Object.keys(data).some(k => /^schedule_/.test(k)) || 'settings' in data)) {
-          // Validate backup structure - allow known app keys
+          // Validate and filter backup structure - allow known app keys, warn about unknown ones
           const keys = Object.keys(data);
           const knownKeys = [
             /^schedule_/,           // schedule_default, schedule_profile1, etc.
@@ -1353,11 +1353,22 @@ function syncProfileLabel() {
             /^onboardingShown$/,    // onboardingShown
             /^settingsPanelOpen$/   // settingsPanelOpen
           ];
-          const validKeys = keys.every(k => knownKeys.some(pattern => pattern.test(k)));
-          if (!validKeys) {
-            const invalidKeys = keys.filter(k => !knownKeys.some(pattern => pattern.test(k)));
-            throw new Error(`Invalid backup format: contains unrecognized keys: ${invalidKeys.join(', ')}`);
+
+          const unknownKeys = keys.filter(k => !knownKeys.some(pattern => pattern.test(k)));
+          if (unknownKeys.length > 0) {
+            console.warn('Backup contains unknown keys that will be ignored:', unknownKeys);
+            // Filter out unknown keys for security
+            const filteredData = {};
+            keys.forEach(k => {
+              if (knownKeys.some(pattern => pattern.test(k))) {
+                filteredData[k] = data[k];
+              }
+            });
+            showToast(`Backup restored (ignored ${unknownKeys.length} unknown key(s))`, 'success');
+            restoreBackup(filteredData);
+            return;
           }
+
           // full restore
           restoreBackup(data);
           showToast('Backup restored','success');
