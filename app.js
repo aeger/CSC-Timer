@@ -1,4 +1,4 @@
-const VERSION='v0.5.4A';
+const VERSION='v0.5.5';
 /* CSC Adherence Timer app.js (v0.5.4A) */
 (() => {
   'use strict';
@@ -21,7 +21,7 @@ const VERSION='v0.5.4A';
       enableSounds: true, enableClicks: true, clickVolume: 0.5,
       timeFormat: '12',
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
-      sounds: { lead: {}, at: {}, over1: {}, over2: {} },
+      sounds: { lead: {}, at: {}, over1: {}, over2: {}, shiftEnd: {} },
       clickPattern: 'click.mp3',
       customSounds: {},
       escalation: false
@@ -400,7 +400,7 @@ function syncProfileLabel() {
     if (!state.settings.enableSounds) return;
     if (state.settings.escalation && !/^(break|meal)$/i.test(eventType||'')) return;
     const pick = k => (state.settings.sounds?.[k]?.file) || (k === 'lead' ? 'notification tone.mp3' : 'a.mp3');
-    const file = ({lead:pick('lead'), at:pick('at'), over1:pick('over1'), over2:pick('over2')})[stage];
+    const file = ({lead:pick('lead'), at:pick('at'), over1:pick('over1'), over2:pick('over2'), shiftEnd:pick('shiftEnd')})[stage];
     if (!file || !window.Howl) return;
     try {
       // Stop any existing alert before starting a new one
@@ -419,7 +419,7 @@ function syncProfileLabel() {
     if (!state.settings.enableNotifications) return;
     if (!('Notification' in window)) return;
     if (Notification.permission !== 'granted') return;
-    const titles = { lead:'Upcoming Event', at:'Event Time', over1:'First Overdue', over2:'Second Overdue' };
+    const titles = { lead:'Upcoming Event', at:'Event Time', over1:'First Overdue', over2:'Second Overdue', shiftEnd:'Shift Ended' };
     const title = titles[stage] || 'Event';
     const body = eventType ? `${eventType}${time ? ' at '+displayTime(time) : ''}` : '';
     try {
@@ -726,6 +726,16 @@ function syncProfileLabel() {
     const normExp = (expectedType || '').toLowerCase();
     const evKey = notScheduled ? 'off' : (normExp || 'none');
     if (evKey !== state.lastEventKey) {
+      // Check if shift just ended (transitioned from scheduled to not scheduled)
+      const wasScheduled = state.lastEventKey && state.lastEventKey !== 'off';
+      const nowNotScheduled = evKey === 'off';
+      if (wasScheduled && nowNotScheduled && list.length > 0) {
+        // Shift just ended - play shift end sound
+        playStage('shiftEnd', 'Shift End');
+        try {
+          notifyStage('shiftEnd', 'Shift End', null);
+        } catch {}
+      }
       state.lastEventKey = evKey;
       state.lastStage = null;
       state.ackStatus = null;
@@ -921,6 +931,7 @@ function syncProfileLabel() {
     setSelect('atPattern',files,s.sounds.at.file||'a.mp3');
     setSelect('over1Pattern',files,s.sounds.over1.file||'a.mp3');
     setSelect('over2Pattern',files,s.sounds.over2.file||'a.mp3');
+    setSelect('shiftEndPattern',files,s.sounds.shiftEnd.file||'notification tone.mp3');
     const customSounds = Object.keys(s.customSounds || {});
     setSelect('deleteSoundSelect', customSounds, '');
     const save=()=>{ try{ localStorage.setItem('settings', JSON.stringify(state.settings)); }catch{} };
@@ -929,12 +940,14 @@ function syncProfileLabel() {
     $('atPattern')   ?.addEventListener('change',e=>{ s.sounds.at.file=e.target.value; save(); });
     $('over1Pattern')?.addEventListener('change',e=>{ s.sounds.over1.file=e.target.value; save(); });
     $('over2Pattern')?.addEventListener('change',e=>{ s.sounds.over2.file=e.target.value; save(); });
+    $('shiftEndPattern')?.addEventListener('change',e=>{ s.sounds.shiftEnd.file=e.target.value; save(); });
 
     wirePreview('previewClick','clickPattern');
     wirePreview('previewLead','leadPattern');
     wirePreview('previewAt','atPattern');
     wirePreview('previewOver1','over1Pattern');
     wirePreview('previewOver2','over2Pattern');
+    wirePreview('previewShiftEnd','shiftEndPattern');
 
     $('uploadSoundBtn')?.addEventListener('click',()=> $('uploadSound')?.click());
     $('uploadSound')?.addEventListener('change',async e=>{
@@ -971,6 +984,7 @@ function syncProfileLabel() {
         setSelect('atPattern',list,state.settings.sounds.at.file);
         setSelect('over1Pattern',list,state.settings.sounds.over1.file);
         setSelect('over2Pattern',list,state.settings.sounds.over2.file);
+        setSelect('shiftEndPattern',list,state.settings.sounds.shiftEnd.file);
         setSelect('deleteSoundSelect', Object.keys(state.settings.customSounds || {}), '');
         showToast('Uploaded. Select it from the dropdowns.','success');
       } catch(error) {
@@ -997,7 +1011,8 @@ function syncProfileLabel() {
         s.sounds?.lead?.file,
         s.sounds?.at?.file,
         s.sounds?.over1?.file,
-        s.sounds?.over2?.file
+        s.sounds?.over2?.file,
+        s.sounds?.shiftEnd?.file
       ].filter(Boolean);
 
       if (inUseSounds.includes(selected)) {
@@ -1013,6 +1028,7 @@ function syncProfileLabel() {
       setSelect('atPattern', list, state.settings.sounds.at.file || 'a.mp3');
       setSelect('over1Pattern', list, state.settings.sounds.over1.file || 'a.mp3');
       setSelect('over2Pattern', list, state.settings.sounds.over2.file || 'a.mp3');
+      setSelect('shiftEndPattern', list, state.settings.sounds.shiftEnd.file || 'notification tone.mp3');
       setSelect('deleteSoundSelect', Object.keys(state.settings.customSounds || {}), '');
       showToast('Custom sound deleted', 'success');
     });

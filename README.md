@@ -1,4 +1,4 @@
-# CSC Adherence Timer (v0.5.4A)
+# CSC Adherence Timer (v0.5.5)
 
 A lightweight, offline-capable web app to show the current time, countdown to the next event, color-coded status, audible alerts, and a weekly planner.
 
@@ -22,7 +22,7 @@ A lightweight, offline-capable web app to show the current time, countdown to th
   - Sample: `demo-week-schedule.json`
 - Sounds:
   - Click sound on UI actions (toggleable)
-  - Alert sounds for lead/at/overdue stages
+  - Alert sounds for lead/at/overdue/shift end stages
   - Dropdowns auto-populate from `/sounds/manifest.json`
   - Upload custom `.mp3` files (stored in localStorage as data URLs)
   - Preview buttons for all sound choices
@@ -31,6 +31,13 @@ A lightweight, offline-capable web app to show the current time, countdown to th
   - Offline caching of core assets
 
 ## Update Notes
+### v0.5.5
+- Added shift end sound option that plays when the shift ends (after last event)
+- Enhanced sound upload validation with file size limits and MIME type checking
+- Improved JSON import validation with better error handling
+- Added Subresource Integrity (SRI) hashes for external CDN resources
+- Enhanced accessibility with focus indicators for keyboard navigation
+
 ### v0.5.4A
 - Hotfix for event editing modal functionality and countdown display
 - Improved time format handling for 12h and 24h inputs
