@@ -1342,11 +1342,21 @@ function syncProfileLabel() {
 
         // Detect full backup format: keys starting with schedule_ or schedule_week_ or settings
         if (data && typeof data === 'object' && (Object.keys(data).some(k => /^schedule_/.test(k)) || 'settings' in data)) {
-          // Validate backup structure
+          // Validate backup structure - allow known app keys
           const keys = Object.keys(data);
-          const validKeys = keys.every(k => /^schedule_|^schedule_week_|^settings$|^customSounds$/.test(k));
+          const knownKeys = [
+            /^schedule_/,           // schedule_default, schedule_profile1, etc.
+            /^schedule_week_/,      // schedule_week_default, etc.
+            /^settings$/,           // settings
+            /^customSounds$/,       // customSounds
+            /^currentProfile$/,     // currentProfile
+            /^onboardingShown$/,    // onboardingShown
+            /^settingsPanelOpen$/   // settingsPanelOpen
+          ];
+          const validKeys = keys.every(k => knownKeys.some(pattern => pattern.test(k)));
           if (!validKeys) {
-            throw new Error('Invalid backup format: contains unrecognized keys');
+            const invalidKeys = keys.filter(k => !knownKeys.some(pattern => pattern.test(k)));
+            throw new Error(`Invalid backup format: contains unrecognized keys: ${invalidKeys.join(', ')}`);
           }
           // full restore
           restoreBackup(data);
