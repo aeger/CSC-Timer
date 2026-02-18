@@ -1,5 +1,5 @@
 const VERSION='v0.5.5';
-/* CSC Adherence Timer app.js (v0.5.4A) */
+/* CSC Adherence Timer app.js (v0.5.5) */
 (() => {
   'use strict';
   if (window.__CSC_BOOTED__) return;
@@ -428,12 +428,15 @@ function syncProfileLabel() {
     } catch {}
   }
 
-  // Export a full backup of all localStorage data to a JSON file
+  // Export a full backup of app-specific localStorage data to a JSON file.
+  // Only keys belonging to this app are included; unrelated browser storage
+  // (extensions, other sites) is ignored to protect user privacy.
+  const APP_KEY_PATTERNS = [/^schedule_/, /^schedule_week_/, /^settings$/, /^customSounds$/, /^currentProfile$/, /^onboardingShown$/, /^settingsPanelOpen$/];
   function backupAll(){
     const data = {};
     for (let i=0; i<localStorage.length; i++){
       const key = localStorage.key(i);
-      data[key] = localStorage.getItem(key);
+      if (APP_KEY_PATTERNS.some(p => p.test(key))) data[key] = localStorage.getItem(key);
     }
     const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
     const a = document.createElement('a');
@@ -975,7 +978,10 @@ function syncProfileLabel() {
 
       try {
         const buf=await f.arrayBuffer();
-        const b64=btoa(String.fromCharCode(...new Uint8Array(buf)));
+        const bytes=new Uint8Array(buf);
+        let binary='';
+        for(let i=0;i<bytes.length;i++) binary+=String.fromCharCode(bytes[i]);
+        const b64=btoa(binary);
         state.settings.customSounds[f.name]=`data:audio/mp3;base64,${b64}`;
         saveAll();
         const list=await listSoundFiles();
@@ -1108,6 +1114,11 @@ function syncProfileLabel() {
 
     $('addProfile')?.addEventListener('click',()=>{
       const name=prompt('New profile name:','New'); if(!name) return;
+      const reserved = ['settings','customSounds','currentProfile','onboardingShown','settingsPanelOpen'];
+      if (reserved.includes(name) || name.startsWith('schedule_')) {
+        showToast(`"${name}" is a reserved name and cannot be used as a profile name.`, 'error');
+        return;
+      }
       if (!$('profileSwitcher').querySelector(`option[value="${name}"]`)){
         const sel=$('profileSwitcher'); const o=document.createElement('option'); o.value=name; o.textContent=name; sel.appendChild(o); sel.value=name;
       } else { $('profileSwitcher').value=name; }
@@ -1494,23 +1505,3 @@ document.addEventListener('DOMContentLoaded', ()=>{
 window.removeEventListener('click',u);window.removeEventListener('keydown',u);window.removeEventListener('touchstart',u);} 
 window.addEventListener('click',u,{once:true});window.addEventListener('keydown',u,{once:true});window.addEventListener('touchstart',u,{once:true});})();
 
-// v0.5.4 stage→CSS sync
-(function(){
-  var __lastStageKey = '';
-  function applyStageClass(stage) {
-    document.body.classList.remove('state-on','state-lead','state-after');
-    var key = (stage === 'lead') ? 'lead' : (stage === 'after' ? 'after' : 'on');
-    document.body.classList.add('state-' + key);
-  }
-  setInterval(function(){
-    try {
-      if (typeof stage !== 'undefined') {
-        var key = (stage === 'lead') ? 'lead' : (stage === 'after' ? 'after' : 'on');
-        if (key !== __lastStageKey) {
-          applyStageClass(stage);
-          __lastStageKey = key;
-        }
-      }
-    } catch(e){}
-  }, 500);
-})();

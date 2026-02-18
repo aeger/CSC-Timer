@@ -2,12 +2,12 @@
 // Use a versioned cache name for the service worker.  Bump this when
 // updating cached files.  Paths below are relative so the app works from
 // subdirectories (e.g. /Test1/).
-const CACHE = 'csc-v0.5.4';
+const CACHE = 'csc-v0.5.5';
 const CORE = [
   './',
   'index.html', 'styles.css', 'app.js', 'sfx.js',
   'manifest.webmanifest', 'logo.png', 'favicon.ico',
-  'demo-week-schedule.json', 'sounds/manifest.json',
+  'demo-week-schedule.rich.json', 'sounds/manifest.json',
   'sounds/click.mp3', 'sounds/a.mp3'
 ];
 self.addEventListener('install', e => {

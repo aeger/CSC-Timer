@@ -1,5 +1,5 @@
 {
-  "name": "CSC Adherence Timer v0.5.4A",
+  "name": "CSC Adherence Timer v0.5.5",
   "short_name": "Adherence",
   "start_url": "./",
   "display": "standalone",
@@ -37,6 +37,6 @@
       "type": "image/png"
     }
   ],
-  "description": "CSC Adherence Timer — build1 baseline | v0.5.4A | 2025-10-08"
+  "description": "CSC Adherence Timer — v0.5.5"
 }
 
